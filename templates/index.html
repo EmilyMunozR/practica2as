@@ -84,18 +84,18 @@
     </div>
 
     <ul class="app-menu nav nav-underline justify-content-center">
-        <li class="nav-item">
+        <li class="nav-item ng-hide" ng-show="!login">
             <a class="nav-link" href="#/">Inicio</a>
         </li>
-        <li class="nav-item">
+        <li class="nav-item ng-hide" ng-show="login">
             <a class="nav-link" href="#/integrantes">Integrantes</a>
         </li>
 
-        <li class="nav-item">
+        <li class="nav-item ng-hide" ng-show="login">
             <a class="nav-link" href="#/proyectos">Proyectos</a>
         </li>
 
-        <li class="nav-item">
+        <li class="nav-item ng-hide" ng-show="login">
             <a class="nav-link" href="#/equipos">Equipos</a>
         </li>
         
@@ -135,6 +135,7 @@
     </div>
 </body>
 </html>
+
 
 
 
