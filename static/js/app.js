@@ -97,7 +97,7 @@ app.controller("appCtrl", function ($scope, $http, $rootScope, $location) {
                 // Guardar sesión
                 localStorage.setItem('userSession', JSON.stringify(respuesta[0]));
                 
-                window.location = "/#/integrantes";
+                $location.path = ("/integrantes");
                 return;
             }
 
@@ -516,6 +516,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash);
 });
+
 
 
 
