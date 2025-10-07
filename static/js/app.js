@@ -53,8 +53,10 @@ app.run(["$rootScope", "$location", "$timeout", function($rootScope, $location, 
         $timeout(actualizarFechaHora, 1000);
     }
 
-    $rootScope.slide = "";
-    $rootScope.login             = false;
+    $rootScope.slide        = "";
+    $rootScope.spinnerGrow  = false
+    $rootScope.login        = false
+
     actualizarFechaHora();
 
     $rootScope.$on("$routeChangeSuccess", function (event, current, previous) {
@@ -514,6 +516,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash);
 });
+
 
 
 
