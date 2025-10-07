@@ -54,7 +54,7 @@ app.run(["$rootScope", "$location", "$timeout", function($rootScope, $location, 
     }
 
     $rootScope.slide = "";
-
+    $rootScope.login             = false;
     actualizarFechaHora();
 
     $rootScope.$on("$routeChangeSuccess", function (event, current, previous) {
@@ -82,12 +82,19 @@ app.run(["$rootScope", "$location", "$timeout", function($rootScope, $location, 
 }]);
 
 ///////////////// App Controller
-app.controller("appCtrl", function ($scope, $http) {
+app.controller("appCtrl", function ($scope, $http, $rootScope, $location) {
     $("#frmInicioSesion").submit(function (event) {
         event.preventDefault();
 
         $.post("iniciarSesion", $(this).serialize(), function (respuesta) {
             if (respuesta && respuesta.length) {
+                
+                $rootScope.login = true;
+                $rootScope.$apply();
+                
+                // Guardar sesión
+                localStorage.setItem('userSession', JSON.stringify(respuesta[0]));
+                
                 window.location = "/#/integrantes";
                 return;
             }
@@ -98,7 +105,6 @@ app.controller("appCtrl", function ($scope, $http) {
         });
     });
 });
-
 ///////////////// integrantes controller
 app.controller("integrantesCtrl", function ($scope, $http) {
     function buscarIntegrantes() {
