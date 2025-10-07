@@ -1,0 +1,41 @@
+<form id="frmProyectoAvance" method="post">
+    <div class="mb-1">
+        <label>Proyecto</label>
+        <select class="form-control" id="slcProyecto" name="idProyecto">
+            {% for proyecto in proyectos %}
+                <option value="{{ proyecto.idProyecto }}">{{ proyecto.tituloProyecto }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="mb-1">
+        <label>Progreso (%)</label>
+        <input type="number" step="0.01" class="form-control" id="txtProgreso" name="txtProgreso">
+    </div>
+    <div class="mb-1">
+        <label>Descripción</label>
+        <input type="text" class="form-control" id="txtDescripcion" name="txtDescripcion">
+    </div>
+    <div class="mb-1 text-end">
+        <button class="btn btn-primary">Guardar</button>
+    </div>
+</form>
+
+<div class="table-responsive">
+    <table class="table table-sm">
+        <thead class="table-active">
+            <tr>
+                <th>Id</th>
+                <th>Proyecto</th>
+                <th>Progreso</th>
+                <th>Descripción</th>
+                <th>Fecha</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody id="tbodyProyectosAvances"></tbody>
+    </table>
+</div>
+
+
+
+

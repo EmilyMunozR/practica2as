@@ -1,0 +1,14 @@
+{% for avance in proyectosavances %}
+  <tr>
+    <td>{{ avance.idProyectoAvance }}</td>
+    <td>{{ avance.tituloProyecto }}</td>
+    <td>{{ avance.progreso }}%</td>
+    <td>{{ avance.descripcion }}</td>
+    <td>{{ avance.fechaHora }}</td>
+    <td>
+      <button class="btn btn-danger btn-end btnEliminarAvance" data-id="{{ avance.idProyectoAvance }}">
+        Eliminar
+      </button>
+    </td>
+  </tr>
+{% endfor %}
