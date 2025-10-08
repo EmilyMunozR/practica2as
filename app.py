@@ -85,6 +85,7 @@ def pusherProyectosAvances():
     pusher_client.trigger('proyectosAvanceschannel', 'proyectosAvancesevent', {'message': 'hello Proyectos Avances'})
     return make_response(jsonify({}))
 
+# Ruta de Inicio (Landin-Page)
 @app.route("/")
 def index():
     if not con.is_connected():
@@ -93,6 +94,7 @@ def index():
 
     return render_template("landing-page.html")
 
+# Te regresa a (index)
 @app.route("/dashboard")
 def dashboard():
     if not con.is_connected():
@@ -101,6 +103,7 @@ def dashboard():
 
     return render_template("index.html")
 
+# Ruta para el inicio de sesion (login.html)
 @app.route("/app")
 def app2():
     if not con.is_connected():
@@ -109,6 +112,7 @@ def app2():
 
     return render_template("login.html")
 
+# Funcionamiento del Inicio de sesion en base a lo llenado del formulario
 @app.route("/iniciarSesion", methods=["POST"])
 def iniciarSesion():
     if not con.is_connected():
@@ -133,12 +137,15 @@ def iniciarSesion():
 
     return make_response(jsonify(registros))
 
+#
+#///////////////////////////// INTEGRANTES ///////////
 #   Rutas  De  Integrantes    
 @app.route("/integrantes")
 def integrantes():
     
     return render_template("integrantes.html")
 
+# Traer los registros de integrantes en el tbody
 @app.route("/tbodyIntegrantes")
 def tbodyProductos():
     if not con.is_connected():
@@ -160,6 +167,7 @@ def tbodyProductos():
     
     return render_template("tbodyIntegrantes.html", integrantes=registros)
 
+# Funcionamiento de la busuqeda de integrantes
 @app.route("/integrantes/buscar", methods=["GET"])
 def buscarIntegrantes():
     if not con.is_connected():
@@ -196,7 +204,7 @@ def buscarIntegrantes():
 
     return make_response(jsonify(registros))
 
-
+# Funionamiento de insertar integrantes
 @app.route("/integrante", methods=["POST"])
 def guardarIntegrante():
     if not con.is_connected():
@@ -228,9 +236,7 @@ def guardarIntegrante():
     pusherIntegrantes()
     return make_response(jsonify({"mensaje": "Integrante guardado"}))
 
-
-
-
+# Funcionamiento de modificar integrantes
 @app.route("/integrante/<int:id>")
 def editarIntegrante(id):
     if not con.is_connected():
@@ -253,7 +259,7 @@ def editarIntegrante(id):
 
     return make_response(jsonify(registros))
 
-
+# Funcionamiento de eliminar integrantes
 @app.route("/integrante/eliminar", methods=["POST"])
 def eliminarIntegrante():
     if not con.is_connected():
@@ -275,6 +281,7 @@ def eliminarIntegrante():
 
     pusherIntegrantes()
     return make_response(jsonify({"mensaje": "Integrante eliminado"}))
+
 
 #   Rutas  De  Proyectos Avances    
 @app.route("/proyectosavances")
@@ -705,6 +712,7 @@ def cargarIntegrantes():
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
+
 
 
 
