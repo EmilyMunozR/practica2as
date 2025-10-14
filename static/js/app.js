@@ -9,9 +9,47 @@ function activeMenuOption(href) {
         .addClass("active")
         .attr("aria-current", "page");
 }
+/*
+function disableAll() {
+    const elements = document.querySelectorAll(".while-waiting")
+    elements.forEach(function (el, index) {
+        el.setAttribute("disabled", "true")
+        el.classList.add("disabled")
+    })
+}
+function enableAll() {
+    const elements = document.querySelectorAll(".while-waiting")
+    elements.forEach(function (el, index) {
+        el.removeAttribute("disabled")
+        el.classList.remove("disabled")
+    })
+}
+function debounce(fun, delay) {
+    let timer
+    return function (...args) {
+        clearTimeout(timer)
+        timer = setTimeout(function () {
+            fun.apply(this, args)
+        }, delay)
+    }
+}
+
+const DateTime = luxon.DateTime
+let lxFechaHora
+let diffMs = 0
+const configFechaHora = {
+    locale: "es",
+    weekNumbers: true,
+    // enableTime: true,
+    minuteIncrement: 15,
+    altInput: true,
+    altFormat: "d/F/Y",
+    dateFormat: "Y-m-d",
+    // time_24hr: false
+}
+*/
 
 const app = angular.module("angularjsApp", ["ngRoute"]);
-
 app.config(function ($routeProvider, $locationProvider) {
     $locationProvider.hashPrefix("");
 
@@ -86,27 +124,28 @@ app.run(["$rootScope", "$location", "$timeout", function($rootScope, $location, 
 ///////////////// App Controller
 app.controller("appCtrl", function ($scope, $http, $rootScope, $location) {
     $("#frmInicioSesion").submit(function (event) {
-        event.preventDefault();
+        event.preventDefault()
+
+        pop(".div-inicio-sesion", 'ℹ️Iniciando sesi&oacute;n, espere un momento...', "primary")
 
         $.post("iniciarSesion", $(this).serialize(), function (respuesta) {
-            if (respuesta && respuesta.length) {
-                
-                $rootScope.login = true;
-                $rootScope.$apply();
-                
-                // Guardar sesión
-                localStorage.setItem('userSession', JSON.stringify(respuesta[0]));
-                
-                $location.path = ("/integrantes");
-                return;
+            enableAll()
+
+            if (respuesta.length) {
+                localStorage.setItem("login", "1")
+                localStorage.setItem("preferencias", JSON.stringify(respuesta[0]))
+                $("#frmInicioSesion").get(0).reset()
+                location.reload()
+                return
             }
 
-            alert("Usuario y/o Contraseña Incorrecto(s)");
-        }).fail(function () {
-            alert("Error al iniciar sesión");
-        });
-    });
-});
+            pop(".div-inicio-sesion", "Usuario y/o contrase&ntilde;a incorrecto(s)", "danger")
+        })
+
+        disableAll()
+    })
+})
+
 ///////////////// integrantes controller
 app.controller("integrantesCtrl", function ($scope, $http) {
     function buscarIntegrantes() {
@@ -146,7 +185,7 @@ app.controller("integrantesCtrl", function ($scope, $http) {
 });
 
 // Eliminar Integrantes 
-$(document).on("click", ".btnEliminarIntegrante", function () {
+$(document).on("click", ".btnEliminarIntegrante", function (event) {
     const id = $(this).data("id");
 
     if (confirm("¿Seguro que quieres eliminar este integrante?")) {
@@ -516,6 +555,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash);
 });
+
 
 
 
