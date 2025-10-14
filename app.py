@@ -115,15 +115,13 @@ def app2():
 # Funcionamiento del Inicio de sesion en base a lo llenado del formulario
 @app.route("/iniciarSesion", methods=["POST"])
 def iniciarSesion():
-    if not con.is_connected():
-        con.reconnect()
+    usuario    = request.form["txtUsuario"]
+    contrasena = request.form["txtContrasena"]
 
-    usuario    = request.form["txtUsuario"].strip()
-    contrasena = request.form["txtContrasena"].strip()
-
+    con    = con_pool.get_connection()
     cursor = con.cursor(dictionary=True)
     sql    = """
-    SELECT IdUsuario
+    SELECT IdUsuario, Nombre, Tipo_Usuario
     FROM usuarios
     
     WHERE Nombre = %s 
@@ -133,8 +131,20 @@ def iniciarSesion():
 
     cursor.execute(sql, val)
     registros = cursor.fetchall()
-    con.close()
-
+    if cursor:
+        cursor.close()
+    if con and con.is_connected():
+        con.close()
+    
+    session["login"]      = False
+    session["login-usr"]  = None
+    session["login-tipo"] = 0
+    if registros:
+        usuario = registros[0]
+        session["login"]      = True
+        session["login-usr"]  = usuario["Nombre"]
+        session["login-tipo"] = usuario["Tipo_Usuario"]
+    
     return make_response(jsonify(registros))
 
 #
@@ -142,7 +152,6 @@ def iniciarSesion():
 #   Rutas  De  Integrantes    
 @app.route("/integrantes")
 def integrantes():
-    
     return render_template("integrantes.html")
 
 # Traer los registros de integrantes en el tbody
@@ -169,50 +178,51 @@ def tbodyProductos():
 
 # Funcionamiento de la busuqeda de integrantes
 @app.route("/integrantes/buscar", methods=["GET"])
+@login
 def buscarIntegrantes():
-    if not con.is_connected():
-        con.reconnect()
-
     args     = request.args
     busqueda = args["busqueda"]
     busqueda = f"%{busqueda}%"
-
-    cursor = con.cursor(dictionary=True)
-    sql    = """
-    SELECT idIntegrante,
-           nombreIntegrante
-
-    FROM integrantes
-
-    WHERE nombreIntegrante LIKE %s
-
-    ORDER BY idIntegrante DESC
-    LIMIT 10 OFFSET 0
-    """
-    val = (busqueda,)
-
+    
     try:
+        con    = con_pool.get_connection()
+        cursor = con.cursor(dictionary=True)
+        sql    = """
+        
+        SELECT idIntegrante,
+               nombreIntegrante
+    
+        FROM integrantes
+    
+        WHERE nombreIntegrante LIKE %s
+    
+        ORDER BY idIntegrante DESC
+        LIMIT 10 OFFSET 0
+        """
+        val = (busqueda,)
+
         cursor.execute(sql, val)
         registros = cursor.fetchall()
 
     except mysql.connector.errors.ProgrammingError as error:
-        print(f"Ocurrió un error de programación en MySQL: {error}")
         registros = []
 
     finally:
+        if cursor:
+        con.close()
+    if con and con.is_connected():
         con.close()
 
     return make_response(jsonify(registros))
 
 # Funionamiento de insertar integrantes
 @app.route("/integrante", methods=["POST"])
+@login
 def guardarIntegrante():
-    if not con.is_connected():
-        con.reconnect()
-
     idIntegrante = request.form["idIntegrante"]
     nombreIntegrante = request.form["nombreIntegrante"]
-
+    
+    con    = con_pool.get_connection()
     cursor = con.cursor()
 
     if idIntegrante:
@@ -231,19 +241,21 @@ def guardarIntegrante():
 
     cursor.execute(sql, val)
     con.commit()
-    con.close()
+    if cursor:
+        con.close()
+    if con and con.is_connected():
+        con.close()
 
     pusherIntegrantes()
     return make_response(jsonify({"mensaje": "Integrante guardado"}))
 
 # Funcionamiento de modificar integrantes
 @app.route("/integrante/<int:id>")
+@login
 def editarIntegrante(id):
-    if not con.is_connected():
-        con.reconnect()
-
+    con    = con_pool.get_connection()
     cursor = con.cursor(dictionary=True)
-    sql = """
+    sql    = """
     
     SELECT idIntegrante, nombreIntegrante
     
@@ -255,20 +267,21 @@ def editarIntegrante(id):
 
     cursor.execute(sql, val)
     registros = cursor.fetchall()
-    con.close()
+    if cursor:
+        con.close()
+    if con and con.is_connected():
+        con.close()
 
-    return make_response(jsonify(registros))
+    return make_response(jsonify({"mensaje": "Integrante Modificado"}))
 
 # Funcionamiento de eliminar integrantes
 @app.route("/integrante/eliminar", methods=["POST"])
 def eliminarIntegrante():
-    if not con.is_connected():
-        con.reconnect()
+    id = request.form("id")
 
-    id = request.form.get("id")
-
-    cursor = con.cursor(dictionary=True)
-    sql = """
+    con     = con_pool.get_connection()
+    cursor  = con.cursor(dictionary=True)
+    sql     = """
     DELETE FROM integrantes 
     WHERE idIntegrante = %s
     """
@@ -277,10 +290,13 @@ def eliminarIntegrante():
     
     cursor.execute(sql, val)
     con.commit()
-    con.close()
-
+    if cursor:
+        con.close()
+    if con and con.is_connected():
+        con.close()
+        
     pusherIntegrantes()
-    return make_response(jsonify({"mensaje": "Integrante eliminado"}))
+    return make_response(jsonify({"mensaje": "Integrante Eliminado"}))
 
 
 #   Rutas  De  Proyectos Avances    
@@ -712,6 +728,7 @@ def cargarIntegrantes():
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
+
 
 
 
