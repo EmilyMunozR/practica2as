@@ -3,8 +3,13 @@
     <td>{{ integrante.idIntegrante }}</td>
     <td>{{ integrante.nombreIntegrante }}</td>
     <td>
-      <button class="btn btn-danger btn-end btnEliminarIntegrante" data-id="{{ integrante.idIntegrante }}">
+      <button class="btn btn-outline-danger btn-end btnEliminarIntegrante" data-id="{{ integrante.idIntegrante }}">
         Eliminar
+      </button>
+    </td>
+    <td>
+      <button class="btn btn-outline-info btn-end btnModificarIntegrante" data-id="{{ integrante.idIntegrante }}">
+        Modificar
       </button>
     </td>
   </tr>
