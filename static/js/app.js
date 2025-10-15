@@ -197,7 +197,14 @@ $(document).on("click", ".btnEliminarIntegrante", function (event) {
     }
 });
 
-///////////////// proyectos controller
+
+
+
+
+
+
+
+///////////////// proyectos controller /////////////////////////////////////////////////////////////////////
 app.controller("proyectosCtrl", function ($scope, $http) {
 
     // Función para cargar equipos en el dropdown
@@ -238,15 +245,51 @@ app.controller("proyectosCtrl", function ($scope, $http) {
         buscarProyectos();
     });
 
+    // Editar Proyecto - cargar datos en el formulario
+    $(document).on("click", ".btnEditarProyecto", function () {
+        const id = $(this).data("id");
+        
+        // Buscar los datos del proyecto en la tabla
+        const $tr = $(this).closest("tr");
+        const titulo = $tr.find("td:eq(1)").text().trim();
+        const nombreEquipo = $tr.find("td:eq(2)").text().trim();
+        const objetivo = $tr.find("td:eq(3)").text().trim();
+        const estado = $tr.find("td:eq(4)").text().trim();
+        
+        // Cargar datos en el formulario
+        $("#idProyecto").val(id); // Campo oculto para el ID
+        $("#txtNombreProyecto").val(titulo);
+        $("#txtObjetivo").val(objetivo);
+        $("#txtEstado").val(estado);
+        
+        // Cargar el equipo en el select
+        cargarEquipos();
+        setTimeout(function() {
+            // Buscar el idEquipo por el nombre
+            $("#txtEquipo option").each(function() {
+                if ($(this).text() === nombreEquipo) {
+                    $("#txtEquipo").val($(this).val());
+                    return false;
+                }
+            });
+        }, 100);
+        
+        // Scroll al formulario
+        $('html, body').animate({
+            scrollTop: $("#frmProyectos").offset().top - 20
+        }, 500);
+    });
+
+    // Modificado para la actualización
     $(document).off("submit", "#frmProyectos").on("submit", "#frmProyectos", function (event) {
         event.preventDefault();
-
         const nombreProyecto = $("#txtNombreProyecto").val().trim();
         const equipo = $("#txtEquipo").val();
         const objetivo = $("#txtObjetivo").val().trim();
         const estado = $("#txtEstado").val().trim();
-
-       if (!nombreProyecto) {
+        const idProyecto = $("#idProyecto").val(); // Obtener ID si existe
+       
+        if (!nombreProyecto) {
             alert("Por favor ingresa el nombre del proyecto");
             return;
         }
@@ -265,22 +308,22 @@ app.controller("proyectosCtrl", function ($scope, $http) {
             alert("Por favor ingresa el estado");
             return;
         }
-
         
         $.post("/proyectos", {
-            idProyecto: "",
-            tituloProyecto: $("#txtNombreProyecto").val(),
-            idEquipo: $("#txtEquipo").val(),
-            objetivo: $("#txtObjetivo").val(),
-            estado: $("#txtEstado").val()
+            idProyecto: idProyecto, // Enviar el ID (vacío si es nuevo)
+            tituloProyecto: nombreProyecto,
+            idEquipo: equipo,
+            objetivo: objetivo,
+            estado: estado
         }).done(function(response) {
             // Limpiar formulario
             $("#frmProyectos")[0].reset();
-
-            // Recargar dropdown de equipos
+            $("#idProyecto").val(""); // Limpiar ID oculto
+            // Recargar select de equipos
             cargarEquipos();
-
-            alert("Proyecto guardado exitosamente");
+            
+            const mensaje = idProyecto ? "Proyecto actualizado exitosamente" : "Proyecto guardado exitosamente";
+            alert(mensaje);
             buscarProyectos();
         }).fail(function(xhr, status, error) {
             console.log("Error:", error);
@@ -555,6 +598,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash);
 });
+
 
 
 
