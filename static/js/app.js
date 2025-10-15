@@ -58,6 +58,10 @@ app.config(function ($routeProvider, $locationProvider) {
             templateUrl: "/app",
             controller: "appCtrl"
         })
+        .when("/dashboard", {
+            templateUrl: "/dashboard",
+            controller: "dashboardCtrl"
+        })
         .when("/integrantes", {
             templateUrl: "/integrantes",
             controller: "integrantesCtrl"
@@ -159,7 +163,7 @@ app.controller("appCtrl", function ($scope, $http, $rootScope, $location) {
                     localStorage.setItem("login", "1");
                     localStorage.setItem("preferencias", JSON.stringify(respuesta.usuario || {}));
                     $("#frmInicioSesion")[0].reset();
-                    location.reload(); // o redirige con $location.path("/dashboard")
+                    $location.path("/dashboard")
                 } else {
                     pop(".div-inicio-sesion", "Usuario y/o contraseña incorrectos", "danger");
                 }
@@ -170,6 +174,11 @@ app.controller("appCtrl", function ($scope, $http, $rootScope, $location) {
                 pop(".div-inicio-sesion", errorMsg, "danger");
             });
     });
+});
+
+///////////////// DashboardController
+app.controller("dashboardCtrl", function ($scope) {
+    // lógica opcional
 });
 
 
@@ -679,6 +688,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash);
 });
+
 
 
 
