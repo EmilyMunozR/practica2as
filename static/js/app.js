@@ -57,10 +57,6 @@ app.config(function ($routeProvider, $locationProvider) {
             templateUrl: "/app",
             controller: "appCtrl"
         })
-        .when("/dashboard", {
-            templateUrl: "/dashboard",
-            controller: "dashboardCtrl"
-        })
         .when("/integrantes", {
             templateUrl: "/integrantes",
             controller: "integrantesCtrl"
@@ -704,6 +700,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash);
 });
+
 
 
 
