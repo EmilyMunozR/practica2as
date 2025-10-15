@@ -1,0 +1,20 @@
+{% if equiposintegrantes%}
+  {% for equipointegrante in equiposintegrantes %}
+    <tr>
+      <td>{{ equipointegrante.idEquipoIntegrante  }}</td>
+      <td>{{ equipointegrante.nombreEquipo }}</td>
+      <td>{{ equipointegrante.nombreIntegrante }}</td>
+       <td>{{ equipointegrante.fechaUnion }}</td>
+      <td>
+        <button class="btn btn-danger btn-end btnEliminarEquipoIntegrante" data-id="{{ equipointegrante.idEquipoIntegrante }}">
+          Eliminar
+        </button>
+      </td>
+    </tr>
+  {% endfor %}
+{% else %}
+  <tr>
+    <td colspan="5">No hay registros</td>
+  </tr>
+{% endif %}
+

@@ -1,0 +1,29 @@
+{% if proyectos %}
+  {% for proyecto in proyectos %}
+    <tr>
+      <td>{{ proyecto.idProyecto }}</td>
+      <td>{{ proyecto.tituloProyecto }}</td> 
+      <td>{{ proyecto.nombreEquipo }}</td>
+      <td>{{ proyecto.objetivo }}</td>
+      <td>{{ proyecto.estado }}</td>
+      <td>
+        <button type="button" class="btn btn-danger btn-end btnEliminarProyecto" data-id="{{ proyecto.idProyecto }}">
+        Eliminar
+      </button>
+      </td>
+      <td>
+        <button type="button" class="btn btn-danger btn-end btnModificarProyecto" data-id="{{ proyecto.idProyecto }}">
+          Modificar
+        </button>
+      </td>
+    </tr>
+  {% endfor %}
+{% else %}
+  <tr>
+    <td colspan="7">No hay registros</td>
+  </tr>
+{% endif %}
+
+
+
+
