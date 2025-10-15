@@ -114,8 +114,14 @@ def iniciarSesion():
         session["login"]      = True
         session["login-usr"]  = usuario["Nombre"]
         session["login-tipo"] = usuario["Tipo_Usuario"]
-        
-    return make_response(jsonify(registros))
+        return jsonify({
+            "mensaje": "Inicio de sesión exitoso",
+            "usuario": usuario
+        })
+    else:
+        return jsonify({
+            "error": "Credenciales incorrectas"
+        }), 401
 
 @app.route("/cerrarSesion", methods=["POST"])
 @login
@@ -714,6 +720,7 @@ def cargarIntegrantes():
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
+
 
 
 
