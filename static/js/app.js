@@ -54,7 +54,7 @@ app.config(function ($routeProvider, $locationProvider) {
 
     $routeProvider
         .when("/", {
-            templateUrl: "/app",
+            templateUrl: "/login",
             controller: "appCtrl"
         })
         .when("/dashboard", {
@@ -708,6 +708,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash);
 });
+
 
 
 
