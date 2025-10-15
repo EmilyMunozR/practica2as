@@ -160,10 +160,7 @@ app.controller("integrantesCtrl", function ($scope, $http) {
 
     Pusher.logToConsole = true;
 
-    var pusher = new Pusher('85576a197a0fb5c211de', {
-        cluster: 'us2'
-    });
-
+    var pusher = new Pusher('85576a197a0fb5c211de', { cluster: 'us2' });
     var channel = pusher.subscribe("integranteschannel");
     channel.bind("integrantesevent", function(data) {
         buscarIntegrantes();
@@ -172,11 +169,22 @@ app.controller("integrantesCtrl", function ($scope, $http) {
     // Insertar Integrantes
     $(document).on("submit", "#frmIntegrante", function (event) {
         event.preventDefault();
+        
+        const id = $("#idIntegrante").val()
+        const nombreIntegrnate = $("#txtNombreIntegrante").val().trim()
 
+         if (!nombre) {
+            alert("Por favor ingresa un integrante.")
+            return
+        }
+        
         $.post("/integrante", {
             idIntegrante: "",
             nombreIntegrante: $("#txtNombreIntegrante").val()
         }).done(function () {
+            alert("Integrante Añadido correctamente");
+            $("#frmIntegrante")[0].reset();
+            $("#btnGuardarIntegrante").text("Guardar")
             buscarIntegrantes();
         }).fail(function () {
             alert("Error al guardar integrante");
@@ -185,7 +193,7 @@ app.controller("integrantesCtrl", function ($scope, $http) {
 });
 
 // Eliminar Integrantes 
-$(document).on("click", ".btnEliminarIntegrante", function (event) {
+$(document).on("click", ".btnEliminarIntegrante", function () {
     const id = $(this).data("id");
 
     if (confirm("¿Seguro que quieres eliminar este integrante?")) {
@@ -622,6 +630,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash);
 });
+
 
 
 
