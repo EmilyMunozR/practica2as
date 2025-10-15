@@ -123,28 +123,55 @@ app.run(["$rootScope", "$location", "$timeout", function($rootScope, $location, 
 
 ///////////////// App Controller
 app.controller("appCtrl", function ($scope, $http, $rootScope, $location) {
+    // Función para deshabilitar todos los inputs y botones
+    function disableAll() {
+        $("input, button").prop("disabled", true);
+    }
+
+    // Función para habilitar todos los inputs y botones
+    function enableAll() {
+        $("input, button").prop("disabled", false);
+    }
+
+    // Evento de envío del formulario de inicio de sesión
     $("#frmInicioSesion").submit(function (event) {
-        event.preventDefault()
+        event.preventDefault();
 
-        pop(".div-inicio-sesion", 'ℹ️Iniciando sesi&oacute;n, espere un momento...', "primary")
+        pop(".div-inicio-sesion", 'ℹ️ Iniciando sesión, espere un momento...', "primary");
+        disableAll();
 
-        $.post("iniciarSesion", $(this).serialize(), function (respuesta) {
-            enableAll()
+        const datos = {
+            txtUsuario: $("#txtUsuario").val().trim(),
+            txtContrasena: $("#txtContrasena").val().trim()
+        };
 
-            if (respuesta.length) {
-                localStorage.setItem("login", "1")
-                localStorage.setItem("preferencias", JSON.stringify(respuesta[0]))
-                $("#frmInicioSesion").get(0).reset()
-                location.reload()
-                return
-            }
+        if (!datos.txtUsuario || !datos.txtContrasena) {
+            enableAll();
+            pop(".div-inicio-sesion", "Por favor ingresa usuario y contraseña", "warning");
+            return;
+        }
 
-            pop(".div-inicio-sesion", "Usuario y/o contrase&ntilde;a incorrecto(s)", "danger")
-        })
+        $.post("/iniciarSesion", datos)
+            .done(function (respuesta) {
+                enableAll();
 
-        disableAll()
-    })
-})
+                if (respuesta.mensaje) {
+                    localStorage.setItem("login", "1");
+                    localStorage.setItem("preferencias", JSON.stringify(respuesta.usuario || {}));
+                    $("#frmInicioSesion")[0].reset();
+                    location.reload(); // o redirige con $location.path("/dashboard")
+                } else {
+                    pop(".div-inicio-sesion", "Usuario y/o contraseña incorrectos", "danger");
+                }
+            })
+            .fail(function (xhr) {
+                enableAll();
+                const errorMsg = xhr.responseJSON?.error || "Error interno del servidor";
+                pop(".div-inicio-sesion", errorMsg, "danger");
+            });
+    });
+});
+
 
 ///////////////// integrantes controller
 app.controller("integrantesCtrl", function ($scope, $http) {
@@ -644,6 +671,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash);
 });
+
 
 
 
