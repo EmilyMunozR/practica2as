@@ -9,7 +9,7 @@ function activeMenuOption(href) {
         .addClass("active")
         .attr("aria-current", "page");
 }
-/*
+
 function disableAll() {
     const elements = document.querySelectorAll(".while-waiting")
     elements.forEach(function (el, index) {
@@ -47,7 +47,6 @@ const configFechaHora = {
     dateFormat: "Y-m-d",
     // time_24hr: false
 }
-*/
 
 const app = angular.module("angularjsApp", ["ngRoute"]);
 app.config(function ($routeProvider, $locationProvider) {
@@ -89,17 +88,33 @@ app.config(function ($routeProvider, $locationProvider) {
 
 app.run(["$rootScope", "$location", "$timeout", function($rootScope, $location, $timeout) {
     function actualizarFechaHora() {
-        // DateTime debe existir (luxon). lxFechaHora es global en este scope.
         lxFechaHora = DateTime.now().setLocale("es");
         $rootScope.angularjsHora = lxFechaHora.toFormat("hh:mm:ss a");
         $timeout(actualizarFechaHora, 1000);
     }
 
     $rootScope.slide        = "";
-    $rootScope.spinnerGrow  = false
-    $rootScope.login        = false
+    $rootScope.spinnerGrow  = false;
+    $rootScope.login        = localStorage.getItem("login") === "1";
 
     actualizarFechaHora();
+
+    $rootScope.$on("$routeChangeStart", function (event, next, current) {
+        const login = localStorage.getItem("login");
+        const rutasPrivadas = [
+            "/dashboard",
+            "/integrantes",
+            "/equipos",
+            "/equiposintegrantes",
+            "/proyectos",
+            "/proyectosavances"
+        ];
+
+        if (next && next.$$route && rutasPrivadas.includes(next.$$route.originalPath) && login !== "1") {
+            event.preventDefault();
+            $location.path("/"); 
+        }
+    });
 
     $rootScope.$on("$routeChangeSuccess", function (event, current, previous) {
         $("html").css("overflow-x", "hidden");
@@ -124,6 +139,7 @@ app.run(["$rootScope", "$location", "$timeout", function($rootScope, $location, 
         }
     });
 }]);
+
 
 ///////////////// App Controller
 app.controller("appCtrl", function ($scope, $http, $rootScope, $location) {
@@ -688,6 +704,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash);
 });
+
 
 
 
