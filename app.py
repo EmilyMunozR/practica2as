@@ -72,17 +72,12 @@ def landingPage():
 # Te regresa a (index)
 @app.route("/dashboard")
 def dashboard():
-    return render_template("index.html")
+    return render_template("dashboard.html")
 
 @app.route("/login")
 def appLogin():
     return render_template("login.html")
     
-# Ruta para el inicio de sesion (login.html)
-
-@app.route("/app")
-def app2():
-    return render_template("login.html")
 
 # Funcionamiento del Inicio de sesion en base a lo llenado del formulario
 @app.route("/iniciarSesion", methods=["POST"])
@@ -169,6 +164,7 @@ def tbodyProductos():
 
 # Funcionamiento de la busuqeda de integrantes
 @app.route("/integrantes/buscar", methods=["GET"])
+@login
 def buscarIntegrantes():
     args     = request.args
     busqueda = args["busqueda"]
@@ -207,6 +203,7 @@ def buscarIntegrantes():
 
 # Funionamiento de insertar integrantes
 @app.route("/integrante", methods=["POST"])
+@login
 def guardarIntegrante():
     idIntegrante = request.form["idIntegrante"]
     nombreIntegrante = request.form["nombreIntegrante"]
@@ -240,6 +237,7 @@ def guardarIntegrante():
 
 # Funcionamiento de modificar integrantes
 @app.route("/integrante/<int:id>")
+@login
 def editarIntegrante(id):
     con    = con_pool.get_connection()
     cursor = con.cursor(dictionary=True)
@@ -716,6 +714,7 @@ def cargarIntegrantes():
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
+
 
 
 
