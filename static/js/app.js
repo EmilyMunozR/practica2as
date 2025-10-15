@@ -192,6 +192,20 @@ app.controller("integrantesCtrl", function ($scope, $http) {
     });
 });
 
+// Modificar Integraantes
+$(document).on("click", ".btnModificarIntegrante", function () {
+    const id = $(this).data("id");
+
+    $.get(`/integrante/${id}`, function (data) {
+        $("#idIntegrante").val(data.idIntegrante);
+        $("#txtNombreIntegrante").val(data.nombreIntegrante);
+        $(".btn-primary").text("Actualizar"); 
+    }).fail(function () {
+        alert("Error al traer integrante");
+    });
+});
+
+
 // Eliminar Integrantes 
 $(document).on("click", ".btnEliminarIntegrante", function () {
     const id = $(this).data("id");
@@ -630,6 +644,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash);
 });
+
 
 
 
