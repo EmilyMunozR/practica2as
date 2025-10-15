@@ -1,0 +1,50 @@
+<form id="frmProyectos" method="post">
+
+    <div class="parent">
+        <div class="div1">
+            <div class="mb-1">
+                <input type="hidden" class="form-control" id="idProyecto" name="idProyecto">
+            </div>
+                <label>Nombre del Proyecto</label>
+                <input type="text" class="form-control" id="txtNombreProyecto" name="txtNombreProyecto">
+            </div>
+            <div class="mb-1">
+                <label>Equipo</label>
+                <select class="form-control" id="txtEquipo" name="txtEquipo">
+                    <option value="">Seleccionar equipo...</option>
+                    <!-- Los equipos se cargarán dinámicamente aquí -->
+                </select>
+            </div>
+            <div class="mb-1">
+                <label>Objetivo</label>
+                <input type="text" class="form-control" id="txtObjetivo" name="txtObjetivo">
+            </div>
+            <div class="mb-1">
+                <label>Estado</label>
+                <input type="text" class="form-control" id="txtEstado" name="txtEstado">
+            </div>
+            <div class="mb-1 text-end">
+                <button type="submit" class="btn btn-primary">Guardar</button>
+            </div>
+        </div>
+</form>
+<div class="div2">
+    <div class="table-responsive">
+        <table class="table table-sm">
+            <thead class="table-active">
+                <tr>
+                    <th>Id</th>
+                    <th>Nombre</th>
+                    <th>Equipo</th>
+                    <th>Objetivo</th>
+                    <th>Estado</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="tbodyProyectos"></tbody>
+        </table>
+    </div>
+</div>
+</div>
+
+
