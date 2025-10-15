@@ -190,7 +190,6 @@ app.controller("appCtrl", function ($scope, $http, $rootScope, $location) {
 
 ///////////////// DashboardController
 app.controller("dashboardCtrl", function ($scope) {
-    $location.path("/app")
 });
 
 
@@ -700,6 +699,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash);
 });
+
 
 
 
