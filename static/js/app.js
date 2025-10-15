@@ -57,6 +57,10 @@ app.config(function ($routeProvider, $locationProvider) {
             templateUrl: "/app",
             controller: "appCtrl"
         })
+        .when("/dashboard", {
+            templateUrl: "/dashboard",
+            controller: "dashboardCtrl"
+        })
         .when("/integrantes", {
             templateUrl: "/integrantes",
             controller: "integrantesCtrl"
@@ -189,8 +193,11 @@ app.controller("appCtrl", function ($scope, $http, $rootScope, $location) {
 });
 
 ///////////////// DashboardController
-app.controller("dashboardCtrl", function ($scope) {
+app.controller("dashboardCtrl", function ($scope, $rootScope) {
+    $rootScope.spinnerGrow = false;
+    $rootScope.login = true;
 });
+
 
 
 ///////////////// integrantes controller
@@ -701,6 +708,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash);
 });
+
 
 
 
