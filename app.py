@@ -42,7 +42,7 @@ def pusherIntegrantes():
     return pusherBase("integranteschannel", "integrantesevent", "hello Integrantes")
 
 def pusherEquiposIntegrantes():
-    return trigger_pusher("equiposIntegranteschannel", "equiposIntegrantesevent", "hello Equipos Integrantes")
+    return pusherBase("equiposIntegranteschannel", "equiposIntegrantesevent", "hello Equipos Integrantes")
 
 def pusherEquipos():
     return pusherBase("equiposchannel", "equiposevent", "hello Equipos")
@@ -53,76 +53,96 @@ def pusherProyectos():
 def pusherProyectosAvances():
     return pusherBase("proyectosAvanceschannel", "proyectosAvancesevent", "hello Proyectos Avances")
 
+def login(fun):
+    @wraps(fun)
+    def decorador(*args, **kwargs):
+        if not session.get("login"):
+            return jsonify({
+                "estado": "error",
+                "respuesta": "No has iniciado sesión"
+            }), 401
+        return fun(*args, **kwargs)
+    return decorador
+    
 # Ruta de Inicio (Landin-Page)
 @app.route("/")
-def index():
-    if not con.is_connected():
-        con.reconnect()
-    con.close()
-
+def landingPage():
     return render_template("landing-page.html")
 
 # Te regresa a (index)
 @app.route("/dashboard")
 def dashboard():
-    if not con.is_connected():
-        con.reconnect()
-    con.close()
-
     return render_template("index.html")
 
-# Ruta para el inicio de sesion (login.html)
-@app.route("/app")
-def app2():
-    if not con.is_connected():
-        con.reconnect()
-    con.close()
-
+@app.route("/login")
+def appLogin():
     return render_template("login.html")
+    
+# Ruta para el inicio de sesion (login.html)
+#'''
+#@app.route("/app")
+#def app2():
+#    if not con.is_connected():
+#        con.reconnect()
+#    con.close()
+
+#    return render_template("login.html")
+#'''
 
 # Funcionamiento del Inicio de sesion en base a lo llenado del formulario
 @app.route("/iniciarSesion", methods=["POST"])
 def iniciarSesion():
-    try:
-        usuario    = request.form["txtUsuario"]
-        contrasena = request.form["txtContrasena"]
     
-        con    = con_pool.get_connection()
-        cursor = con.cursor(dictionary=True)
-        sql    = """
-        SELECT IdUsuario, Nombre, Tipo_Usuario
-        FROM usuarios
+    usuario    = request.form["txtUsuario"]
+    contrasena = request.form["txtContrasena"]
         
-        WHERE Nombre = %s 
-        AND Contrasena = %s
-        """
-        val = (usuario, contrasena)
+    con    = con_pool.get_connection()
+    cursor = con.cursor(dictionary=True)
+    sql    = """
+    SELECT IdUsuario, Nombre, Tipo_Usuario
+    FROM usuarios
+            
+    WHERE Nombre = %s 
+    AND Contrasena = %s
+    """
+    val = (usuario, contrasena)
+        
+    cursor.execute(sql, val)
+    registros = cursor.fetchall()
+            
+    if cursor:
+        cursor.close()
+    if con and con.is_connected():
+        con.close()
+            
+    session["login"]      = False
+    session["login-usr"]  = None
+    session["login-tipo"] = 0
+            
+    if registros:
+        usuario = registros[0]
+        session["login"]      = True
+        session["login-usr"]  = usuario["Nombre"]
+        session["login-tipo"] = usuario["Tipo_Usuario"]
+        
+    return make_response(jsonify(registros))
+
+@app.route("/cerrarSesion", methods=["POST"])
+@login
+def cerrarSesion():
+    session["login"]      = False
+    session["login-usr"]  = None
+    session["login-tipo"] = 0
+    return make_response(jsonify({}))
+
+@app.route("/preferencias")
+@login
+def preferencias():
+    return make_response(jsonify({
+        "usr": session.get("login-usr"),
+        "tipo": session.get("login-tipo", 2)
+    }))
     
-        cursor.execute(sql, val)
-        registros = cursor.fetchall()
-        
-        if cursor:
-            cursor.close()
-        if con and con.is_connected():
-            con.close()
-        
-        session["login"]      = False
-        session["login-usr"]  = None
-        session["login-tipo"] = 0
-        
-        if registros:
-            usuario = registros[0]
-            session["login"]      = True
-            session["login-usr"]  = usuario["Nombre"]
-            session["login-tipo"] = usuario["Tipo_Usuario"]
-            return jsonify({"mensaje": "Inicio de sesión exitoso", "usuario": usuario})
-        else:
-            return jsonify({"error": "Credenciales incorrectas"}), 401
-
-    except Exception as e:
-        print(f"Error en iniciarSesion: {e}")
-        return jsonify({"error": "Error interno del servidor"}), 500
-
 #
 #///////////////////////////// INTEGRANTES ///////////
 #   Rutas  De  Integrantes    
@@ -701,6 +721,7 @@ def cargarIntegrantes():
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
+
 
 
 
