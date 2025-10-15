@@ -115,37 +115,38 @@ def app2():
 # Funcionamiento del Inicio de sesion en base a lo llenado del formulario
 @app.route("/iniciarSesion", methods=["POST"])
 def iniciarSesion():
-    usuario    = request.form["txtUsuario"]
-    contrasena = request.form["txtContrasena"]
-
-    con    = con_pool.get_connection()
-    cursor = con.cursor(dictionary=True)
-    sql    = """
-    SELECT IdUsuario, Nombre, Tipo_Usuario
-    FROM usuarios
+    try:
+        usuario    = request.form["txtUsuario"]
+        contrasena = request.form["txtContrasena"]
     
-    WHERE Nombre = %s 
-    AND Contrasena = %s
-    """
-    val = (usuario, contrasena)
-
-    cursor.execute(sql, val)
-    registros = cursor.fetchall()
-    if cursor:
-        cursor.close()
-    if con and con.is_connected():
-        con.close()
+        con    = con_pool.get_connection()
+        cursor = con.cursor(dictionary=True)
+        sql    = """
+        SELECT IdUsuario, Nombre, Tipo_Usuario
+        FROM usuarios
+        
+        WHERE Nombre = %s 
+        AND Contrasena = %s
+        """
+        val = (usuario, contrasena)
     
-    session["login"]      = False
-    session["login-usr"]  = None
-    session["login-tipo"] = 0
-    if registros:
-        usuario = registros[0]
-        session["login"]      = True
-        session["login-usr"]  = usuario["Nombre"]
-        session["login-tipo"] = usuario["Tipo_Usuario"]
-    
-    return make_response(jsonify(registros))
+        cursor.execute(sql, val)
+        registros = cursor.fetchall()
+        if cursor:
+            cursor.close()
+        if con and con.is_connected():
+            con.close()
+        
+        session["login"]      = False
+        session["login-usr"]  = None
+        session["login-tipo"] = 0
+        if registros:
+            return jsonify({"mensaje": "Inicio de sesión exitoso"})
+        else:
+            return jsonify({"error": "Credenciales incorrectas"}), 401
+    except Exception as e:
+        print(f"Error en iniciarSesion: {e}")
+        return jsonify({"error": "Error interno del servidor"}), 500
 
 #
 #///////////////////////////// INTEGRANTES ///////////
@@ -725,6 +726,7 @@ def cargarIntegrantes():
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
+
 
 
 
