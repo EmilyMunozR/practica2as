@@ -4,31 +4,28 @@
 # py -m ensurepip --upgrade
 # pip install -r requirements.txt
 
-from flask import Flask
-
-from flask import render_template
-from flask import request
-from flask import jsonify, make_response
-from equipos_service import equipos_bp 
-
-import mysql.connector
-import pusher
-import datetime
-import pytz
+from functools import wraps
+from flask import Flask, render_template, request, jsonify, make_response, session
 
 from flask_cors import CORS, cross_origin
 
-con = mysql.connector.connect(
+import mysql.connector.pooling
+import pusher
+import pytz
+import datetime
+
+app            = Flask(__name__)
+app.secret_key = "Test12345"
+CORS(app)
+
+con_pool = mysql.connector.pooling.MySQLConnectionPool(
+    pool_name="my_pool",
+    pool_size=5,
     host="185.232.14.52",
     database="u760464709_23005014_bd",
     user="u760464709_23005014_usr",
     password="B|7k3UPs3&P"
 )
-
-app = Flask(__name__)
-CORS(app)
-
-app.register_blueprint(equipos_bp)
 
 def pusherIntegrantes():
     pusher_client = pusher.Pusher(
@@ -132,6 +129,7 @@ def iniciarSesion():
     
         cursor.execute(sql, val)
         registros = cursor.fetchall()
+        
         if cursor:
             cursor.close()
         if con and con.is_connected():
@@ -140,10 +138,16 @@ def iniciarSesion():
         session["login"]      = False
         session["login-usr"]  = None
         session["login-tipo"] = 0
+        
         if registros:
-            return jsonify({"mensaje": "Inicio de sesión exitoso"})
+            usuario = registros[0]
+            session["login"]      = True
+            session["login-usr"]  = usuario["Nombre"]
+            session["login-tipo"] = usuario["Tipo_Usuario"]
+            return jsonify({"mensaje": "Inicio de sesión exitoso", "usuario": usuario})
         else:
             return jsonify({"error": "Credenciales incorrectas"}), 401
+
     except Exception as e:
         print(f"Error en iniciarSesion: {e}")
         return jsonify({"error": "Error interno del servidor"}), 500
