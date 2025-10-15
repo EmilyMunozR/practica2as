@@ -209,7 +209,7 @@ def buscarIntegrantes():
 
     finally:
         if cursor:
-        con.close()
+            con.close()
     if con and con.is_connected():
         con.close()
 
@@ -728,6 +728,7 @@ def cargarIntegrantes():
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
+
 
 
 
