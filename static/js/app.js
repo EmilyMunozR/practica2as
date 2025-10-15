@@ -563,7 +563,15 @@ $(document).on("click", ".btnEliminarEquipoIntegrante", function () {
         });
     }
 });
+//modficar
+ $(document).on("click", ".btnModificarEquipoIntegrante", function () {
+        const id = $(this).data("id")
+        const nombre = $(this).data("nombre")
 
+        $("#idEquipo").val(id)
+        $("#txtEquipoNombre").val(nombre)
+        $("#btnGuardar").text("Actualizar")
+    })
 //////////////////////////////////////////////////////////
 // proyectosavances controller (CORREGIDO)
 app.controller("proyectosavancesCtrl", function ($scope, $http) {
@@ -671,6 +679,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash);
 });
+
 
 
 
