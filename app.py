@@ -27,7 +27,7 @@ con_pool = mysql.connector.pooling.MySQLConnectionPool(
     password="B|7k3UPs3&P"
 )
 
-def pusherIntegrantes():
+def pusherBase(channel, event, message="hello"):
     pusher_client = pusher.Pusher(
         app_id='2048639',
         key='85576a197a0fb5c211de',
@@ -35,52 +35,23 @@ def pusherIntegrantes():
         cluster='us2',
         ssl=True
     )
-    pusher_client.trigger('integranteschannel', 'integrantesevent', {'message': 'hello Integrantes'})
+    pusher_client.trigger(channel, event, {'message': message})
     return make_response(jsonify({}))
+
+def pusherIntegrantes():
+    return pusherBase("integranteschannel", "integrantesevent", "hello Integrantes")
 
 def pusherEquiposIntegrantes():
-    pusher_client = pusher.Pusher(
-        app_id='2048639',
-        key='85576a197a0fb5c211de',
-        secret='bbd4afc18e15b3760912',
-        cluster='us2',
-        ssl=True
-    )
-    pusher_client.trigger('equiposIntegranteschannel', 'equiposIntegrantesevent', {'message': 'hello Equipos Integrantes'})
-    return make_response(jsonify({}))
+    return trigger_pusher("equiposIntegranteschannel", "equiposIntegrantesevent", "hello Equipos Integrantes")
 
 def pusherEquipos():
-    pusher_client = pusher.Pusher(
-        app_id='2048639',
-        key='85576a197a0fb5c211de',
-        secret='bbd4afc18e15b3760912',
-        cluster='us2',
-        ssl=True
-    )
-    pusher_client.trigger('equiposchannel', 'equiposevent', {'message': 'hello Equipos'})
-    return make_response(jsonify({}))
+    return pusherBase("equiposchannel", "equiposevent", "hello Equipos")
 
 def pusherProyectos():
-    pusher_client = pusher.Pusher(
-        app_id='2048639',
-        key='85576a197a0fb5c211de',
-        secret='bbd4afc18e15b3760912',
-        cluster='us2',
-        ssl=True
-    )
-    pusher_client.trigger('proyectoschannel', 'proyectosevent', {'message': 'hello Proyectos'})
-    return make_response(jsonify({}))
+    return pusherBase("proyectoschannel", "proyectosevent", "hello Proyectos")
 
 def pusherProyectosAvances():
-    pusher_client = pusher.Pusher(
-        app_id='2048639',
-        key='85576a197a0fb5c211de',
-        secret='bbd4afc18e15b3760912',
-        cluster='us2',
-        ssl=True
-    )
-    pusher_client.trigger('proyectosAvanceschannel', 'proyectosAvancesevent', {'message': 'hello Proyectos Avances'})
-    return make_response(jsonify({}))
+    return pusherBase("proyectosAvanceschannel", "proyectosAvancesevent", "hello Proyectos Avances")
 
 # Ruta de Inicio (Landin-Page)
 @app.route("/")
@@ -730,6 +701,7 @@ def cargarIntegrantes():
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
+
 
 
 
