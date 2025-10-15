@@ -79,15 +79,10 @@ def appLogin():
     return render_template("login.html")
     
 # Ruta para el inicio de sesion (login.html)
-#'''
-#@app.route("/app")
-#def app2():
-#    if not con.is_connected():
-#        con.reconnect()
-#    con.close()
 
-#    return render_template("login.html")
-#'''
+@app.route("/app")
+def app2():
+    return render_template("login.html")
 
 # Funcionamiento del Inicio de sesion en base a lo llenado del formulario
 @app.route("/iniciarSesion", methods=["POST"])
@@ -721,6 +716,7 @@ def cargarIntegrantes():
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
+
 
 
 
