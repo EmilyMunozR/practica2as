@@ -347,53 +347,77 @@ app.controller("proyectosCtrl", function ($scope, $http) {
 
 ////////////////// Equipos Controllers
 app.controller("equiposCtrl", function ($scope, $http) {
+
+    // 🔹 Cargar equipos
     function buscarEquipos() {
         $.get("/tbodyEquipos", function (trsHTML) {
-            $("#tbodyEquipos").html(trsHTML);
-        }).fail(function () {
-            console.log("Error al cargar equipos");
-        });
+            $("#tbodyEquipos").html(trsHTML)
+        })
     }
 
-    buscarEquipos();
+    buscarEquipos()
 
-    Pusher.logToConsole = true;
+    // 🔹 Configurar Pusher
+    Pusher.logToConsole = true
+    var pusher = new Pusher('85576a197a0fb5c211de', { cluster: 'us2' })
+    var channel = pusher.subscribe("equiposchannel")
 
-    var pusher = new Pusher('85576a197a0fb5c211de', {
-        cluster: 'us2'
-    });
-
-    var channel = pusher.subscribe("equiposchannel");
     channel.bind("equiposevent", function(data) {
-        buscarEquipos();
-    });
+        buscarEquipos()
+    })
 
+
+    // 🔹 Guardar o actualizar
     $(document).on("submit", "#frmEquipo", function (event) {
-        event.preventDefault();
+        event.preventDefault()
 
-        $.post("/equipo", {
-            idEquipo: "",
-            nombreEquipo: $("#txtEquipoNombre").val()
-        }).done(function () {
-            buscarEquipos();
-        }).fail(function () {
-            alert("Error al guardar equipo");
-        });
-    });
-});
+        const id = $("#idEquipo").val()
+        const nombre = $("#txtEquipoNombre").val().trim()
 
-// Eliminar Equipo
-$(document).on("click", ".btnEliminarEquipo", function () {
-    const id = $(this).data("id");
+        if (!nombre) {
+            alert("Por favor ingresa un nombre de equipo.")
+            return
+        }
 
-    if (confirm("¿Seguro que quieres eliminar este Equipo?")) {
-        $.post("/equipo/eliminar", { id: id }, function () {
-            $(`button[data-id='${id}']`).closest("tr").remove();
-        }).fail(function () {
-            alert("Error al eliminar el Team");
-        });
-    }
-});
+        $.post("/equipo", { idEquipo: id, nombreEquipo: nombre })
+        .done(function (res) {
+            alert(res.mensaje)
+            $("#idEquipo").val("") // limpiar id
+            $("#txtEquipoNombre").val("") // limpiar nombre
+            $("#btnGuardar").text("Guardar")
+        })
+        .fail(function () {
+            alert("Error al guardar el equipo")
+        })
+    })
+
+
+    // 🔹 Eliminar equipo
+    $(document).on("click", ".btnEliminarEquipo", function () {
+        const id = $(this).data("id")
+
+        if (confirm("¿Seguro que quieres eliminar este equipo?")) {
+            $.post("/equipo/eliminar", { id: id }, function () {
+                $(`button[data-id='${id}']`).closest("tr").remove()
+            }).fail(function () {
+                alert("Error al eliminar el equipo")
+            })
+        }
+    })
+
+
+    // 🔹 Editar equipo
+    $(document).on("click", ".btnEditarEquipo", function () {
+        const id = $(this).data("id")
+        const nombre = $(this).data("nombre")
+
+        $("#idEquipo").val(id)
+        $("#txtEquipoNombre").val(nombre)
+        $("#btnGuardar").text("Actualizar")
+    })
+
+})
+
 
 /////////////////////////////////// equiposIntegrantes
 
@@ -598,6 +622,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash);
 });
+
 
 
 
