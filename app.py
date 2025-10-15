@@ -178,7 +178,6 @@ def tbodyProductos():
 
 # Funcionamiento de la busuqeda de integrantes
 @app.route("/integrantes/buscar", methods=["GET"])
-@login
 def buscarIntegrantes():
     args     = request.args
     busqueda = args["busqueda"]
@@ -217,7 +216,6 @@ def buscarIntegrantes():
 
 # Funionamiento de insertar integrantes
 @app.route("/integrante", methods=["POST"])
-@login
 def guardarIntegrante():
     idIntegrante = request.form["idIntegrante"]
     nombreIntegrante = request.form["nombreIntegrante"]
@@ -251,7 +249,6 @@ def guardarIntegrante():
 
 # Funcionamiento de modificar integrantes
 @app.route("/integrante/<int:id>")
-@login
 def editarIntegrante(id):
     con    = con_pool.get_connection()
     cursor = con.cursor(dictionary=True)
@@ -728,6 +725,7 @@ def cargarIntegrantes():
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
+
 
 
 
