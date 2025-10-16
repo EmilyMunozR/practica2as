@@ -88,33 +88,17 @@ app.config(function ($routeProvider, $locationProvider) {
 
 app.run(["$rootScope", "$location", "$timeout", function($rootScope, $location, $timeout) {
     function actualizarFechaHora() {
+        // DateTime debe existir (luxon). lxFechaHora es global en este scope.
         lxFechaHora = DateTime.now().setLocale("es");
         $rootScope.angularjsHora = lxFechaHora.toFormat("hh:mm:ss a");
         $timeout(actualizarFechaHora, 1000);
     }
 
     $rootScope.slide        = "";
-    $rootScope.spinnerGrow  = false;
-    $rootScope.login        = localStorage.getItem("login") === "1";
+    $rootScope.spinnerGrow  = false
+    $rootScope.login        = false
 
     actualizarFechaHora();
-
-    $rootScope.$on("$routeChangeStart", function (event, next, current) {
-        const login = localStorage.getItem("login");
-        const rutasPrivadas = [
-            "/dashboard",
-            "/integrantes",
-            "/equipos",
-            "/equiposintegrantes",
-            "/proyectos",
-            "/proyectosavances"
-        ];
-
-        if (next && next.$$route && rutasPrivadas.includes(next.$$route.originalPath) && login !== "1") {
-            event.preventDefault();
-            $location.path("/"); 
-        }
-    });
 
     $rootScope.$on("$routeChangeSuccess", function (event, current, previous) {
         $("html").css("overflow-x", "hidden");
@@ -708,6 +692,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash);
 });
+
 
 
 
