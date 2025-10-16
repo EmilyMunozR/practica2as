@@ -226,35 +226,45 @@ def buscarIntegrantes():
 @app.route("/integrante", methods=["POST"])
 @login
 def guardarIntegrante():
-    idIntegrante = request.form["idIntegrante"]
-    nombreIntegrante = request.form["nombreIntegrante"]
-    
-    con    = con_pool.get_connection()
-    cursor = con.cursor()
+    try:
+        idIntegrante = request.form.get("idIntegrante", "").strip()
+        nombreIntegrante = request.form.get("nombreIntegrante", "").strip()
 
-    if idIntegrante:
-        sql = """
-        UPDATE integrantes
-        SET nombreIntegrante = %s
-        WHERE idIntegrante = %s
-        """
-        val = (nombreIntegrante, idIntegrante)
-    else:
-        sql = """
-        INSERT INTO integrantes (nombreIntegrante)
-        VALUES (%s)
-        """
-        val = (nombreIntegrante,)
+        if not nombreIntegrante:
+            return jsonify({"error": "Nombre del integrante requerido"}), 400
 
-    cursor.execute(sql, val)
-    con.commit()
-    if cursor:
-        con.close()
-    if con and con.is_connected():
-        con.close()
+        con = con_pool.get_connection()
+        cursor = con.cursor()
 
-    pusherIntegrantes()
-    return make_response(jsonify({"mensaje": "Integrante guardado"}))
+        if idIntegrante:
+            sql = """
+            UPDATE integrantes
+            SET nombreIntegrante = %s
+            WHERE idIntegrante = %s
+            """
+            val = (nombreIntegrante, idIntegrante)
+        else:
+            sql = """
+            INSERT INTO integrantes (nombreIntegrante)
+            VALUES (%s)
+            """
+            val = (nombreIntegrante,)
+
+        cursor.execute(sql, val)
+        con.commit()
+
+        pusherIntegrantes()
+        return jsonify({"mensaje": "Integrante guardado correctamente"})
+
+    except Exception as e:
+        print("Error al guardar integrante:", str(e))
+        return jsonify({"error": "Error interno al guardar"}), 500
+
+    finally:
+        if cursor:
+            cursor.close()
+        if con and con.is_connected():
+            con.close()
 
 # Funcionamiento de modificar integrantes
 @app.route("/integrante/<int:id>")
@@ -785,6 +795,7 @@ def obtenerEquipoIntegrante(id):
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
+
 
 
 
