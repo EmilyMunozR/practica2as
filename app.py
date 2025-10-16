@@ -60,21 +60,11 @@ def pusherProyectosAvances():
 def login(fun):
     @wraps(fun)
     def decorador(*args, **kwargs):
-        try:
-            if not session.get("login"):
-                if request.path.startswith("/api") or request.is_json:
-                    return jsonify({
-                        "estado": "error",
-                        "respuesta": "No has iniciado sesión"
-                    }), 401
-                else:
-                    return redirect(url_for("appLogin"))
-        except Exception as e:
-            # Si algo falla en el acceso a session o request, responde con error controlado
+        if not session.get("login"):
             return jsonify({
                 "estado": "error",
-                "respuesta": f"Error interno: {str(e)}"
-            }), 500
+                "respuesta": "No has iniciado sesión"
+            }), 401
         return fun(*args, **kwargs)
     return decorador
 
@@ -779,6 +769,7 @@ def obtenerEquipoIntegrante(id):
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
+
 
 
 
