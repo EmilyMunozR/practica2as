@@ -6,6 +6,7 @@
 
 from functools import wraps
 from flask import Flask, render_template, request, jsonify, make_response, session, redirect, url_for
+from equipos_service import equipos_bp
 
 from flask_cors import CORS, cross_origin
 
@@ -30,6 +31,8 @@ con_pool = mysql.connector.pooling.MySQLConnectionPool(
     user="u760464709_23005014_usr",
     password="B|7k3UPs3&P"
 )
+
+app.register_blueprint(equipos_bp)
 
 def pusherBase(channel, event, message="hello"):
     pusher_client = pusher.Pusher(
@@ -794,6 +797,7 @@ def obtenerEquipoIntegrante(id):
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
+
 
 
 
