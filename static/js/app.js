@@ -205,7 +205,7 @@ app.controller("integrantesCtrl", function ($scope, $http) {
         event.preventDefault();
         
         const id = $("#idIntegrante").val()
-        const nombreIntegrnate = $("#txtNombreIntegrante").val().trim()
+        const nombreIntegrante = $("#txtNombreIntegrante").val().trim()
 
          if (!nombreIntegrante) {
             alert("Por favor ingresa un integrante.")
@@ -242,7 +242,7 @@ $(document).on("click", ".btnModificarIntegrante", function () {
 
 // Eliminar Integrantes 
 $(document).on("click", ".btnEliminarIntegrante", function () {
-    const id = $(this).data["id"];
+    const id = $(this).data("id");
 
     if (confirm("¿Seguro que quieres eliminar este integrante?")) {
         $.post("/integrante/eliminar", { id: id }, function () {
@@ -688,6 +688,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash);
 });
+
 
 
 
