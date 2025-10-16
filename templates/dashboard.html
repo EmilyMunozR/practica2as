@@ -74,10 +74,9 @@
 
     <script src="https://js.pusher.com/8.4.0/pusher.min.js"></script>  
     <script src="{{ url_for("static", filename="js/app.js") }}"></script>
-    <script src="{{ url_for("static", filename="css/Proyectos.css") }}"></script>
 
 </head>
-<body>
+<body ng-app="angularjsApp" ng-controller="dashboardCtrl">
 
 <div class="ng-hide" ng-show="!spinnerGrow">
     <div class="float-end mt-1 me-3" style="font-size: 1.25rem;">
