@@ -345,8 +345,14 @@ def proyectosavances():
     proyectos = cursor.fetchall()
     con.close()
 
+     finally:
+        if cursor:
+            cursor.close()
+        if con and con.is_connected():
+            con.close()
+
     # funcion para mandarlos a la funcion lista deljsjsjs
-    return render_template("proyectosavances.html", proyectos=proyectos)
+return render_template("proyectosavances.html", proyectos=proyectos)
 @app.route("/proyectos/lista")
 @login
 def listaProyectos():
@@ -368,6 +374,12 @@ def listaProyectos():
         
     except Exception as e:
         return make_response(jsonify({"error": str(e)}), 500)
+finally:
+        if cursor:
+            cursor.close()
+        if con and con.is_connected():
+            con.close()
+
 
 @app.route("/tbodyProyectosAvances")
 @login
@@ -390,7 +402,13 @@ def tbodyProyectosAvances():
     cursor.execute(sql)
     registros = cursor.fetchall()
     con.close()
-    
+
+    finally:
+        if cursor:
+            cursor.close()
+        if con and con.is_connected():
+            con.close()
+
     return render_template("tbodyProyectosAvances.html", proyectosavances=registros)
 
 
@@ -428,6 +446,13 @@ def guardarProyectoAvance():
     con.commit()
     con.close()
 
+
+    finally:
+        if cursor:
+            cursor.close()
+        if con and con.is_connected():
+            con.close()
+
     pusherProyectosAvances()
     return make_response(jsonify({"mensaje": "Proyecto Avance guardado"}))
 
@@ -450,7 +475,15 @@ def eliminarProyectoAvance():
     cursor.execute(sql, val)
     con.commit()
     con.close()
+    
+    finally:
+        if cursor:
+            cursor.close()
+        if con and con.is_connected():
+            con.close()
 
+
+    
     pusherProyectosAvances()
     return make_response(jsonify({"mensaje": "Proyecto Avance eliminado"}))
 
@@ -493,8 +526,16 @@ def tbodyProyectos():
 
     cursor.execute(sql)
     registros = cursor.fetchall()
+
     
     return render_template("tbodyProyectos.html", proyectos=registros)
+
+    finally:
+        if cursor:
+            cursor.close()
+        if con and con.is_connected():
+            con.close()
+    
 
 @app.route("/proyectos/buscar", methods=["GET"])
 @login
@@ -529,6 +570,10 @@ def buscarProyectos():
 
     finally:
         con.close()
+
+
+        if con and con.is_connected():
+            con.close()
 
     return make_response(jsonify(registros))
 
@@ -567,8 +612,16 @@ def guardarProyectos():
     con.commit()
     con.close()
 
+   
     pusherProyectos()
     return make_response(jsonify({"mensaje": "Proyecto guardado"}))
+
+     finally:
+        if cursor:
+            cursor.close()
+        if con and con.is_connected():
+            con.close()
+
 
 ############# Eliminar
 @app.route("/proyectos/eliminar", methods=["POST"])
@@ -600,8 +653,12 @@ def eliminarProyecto():
         print(f"Error al eliminar proyecto: {error}")
         return make_response(jsonify({"error": "Error al eliminar proyecto"}), 500)
         
-    finally:
-        con.close()
+        finally:
+        if cursor:
+            cursor.close()
+        if con and con.is_connected():
+            con.close()
+
 
 
 #//////////////esta wea me trae una lista pal inerjoin //////////////////////////////////////////////////////////
@@ -621,8 +678,17 @@ def cargarEquipos():
     cursor.execute(sql)
     registros = cursor.fetchall()
     con.close()
+
+
     
     return make_response(jsonify(registros))
+
+ finally:
+        if cursor:
+            cursor.close()
+        if con and con.is_connected():
+            con.close()
+
 #////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 @app.route("/equiposintegrantes")
@@ -654,8 +720,16 @@ def tbodyEquiposIntegrantes():
     cursor.execute(sql)
     registros = cursor.fetchall()
 
+
     cursor.close()
     return render_template("tbodyEquiposIntegrantes.html", equiposintegrantes=registros)
+
+    finally:
+        if cursor:
+            cursor.close()
+        if con and con.is_connected():
+            con.close()
+
     
 @app.route("/equiposintegrantes/buscar", methods=["GET"])
 @login
@@ -691,7 +765,15 @@ def buscarEquiposIntegrantes():
     finally:
         con.close()
 
+
     return make_response(jsonify(registros))
+
+    finally:
+        if cursor:
+            cursor.close()
+        if con and con.is_connected():
+            con.close()
+
 
 @app.route("/equiposintegrantes", methods=["POST"])
 @login
@@ -726,7 +808,15 @@ def guardarEquiposIntegrantes():
     con.close()
 
     pusherEquiposIntegrantes()
+
     return make_response(jsonify({"mensaje": "EquipoIntegrante guardado"}))
+
+    finally:
+        if cursor:
+            cursor.close()
+        if con and con.is_connected():
+            con.close()
+
 
 @app.route("/equiposintegrantes/eliminar", methods=["POST"])
 @login
@@ -750,6 +840,13 @@ def eliminarequiposintegrantes():
     pusherEquiposIntegrantes()
     return make_response(jsonify({"mensaje": "Equipo Integrante eliminado"}))
 
+    finally:
+        if cursor:
+            cursor.close()
+        if con and con.is_connected():
+            con.close()
+
+
 @app.route("/integrantes/lista")
 @login
 def cargarIntegrantes():
@@ -768,6 +865,13 @@ def cargarIntegrantes():
     con.close()
     
     return make_response(jsonify(registros))
+
+    finally:
+        if cursor:
+            cursor.close()
+        if con and con.is_connected():
+            con.close()
+
     
 #////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -815,6 +919,7 @@ def obtenerEquipoIntegrante(id):
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
+
 
 
 
