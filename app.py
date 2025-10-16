@@ -615,6 +615,7 @@ def cargarEquipos():
 #////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 @app.route("/equiposintegrantes")
+@login
 def equiposintegrantes():
     return render_template("equiposintegrantes.html")
 
@@ -645,6 +646,7 @@ def tbodyEquiposIntegrantes():
     return render_template("tbodyEquiposIntegrantes.html", equiposintegrantes=registros)
     
 @app.route("/equiposintegrantes/buscar", methods=["GET"])
+@login
 def buscarEquiposIntegrantes():
     if not con.is_connected():
         con.reconnect()
@@ -680,6 +682,7 @@ def buscarEquiposIntegrantes():
     return make_response(jsonify(registros))
 
 @app.route("/equiposintegrantes", methods=["POST"])
+@login
 def guardarEquiposIntegrantes():
     if not con.is_connected():
         con.reconnect()
@@ -714,6 +717,7 @@ def guardarEquiposIntegrantes():
     return make_response(jsonify({"mensaje": "EquipoIntegrante guardado"}))
 
 @app.route("/equiposintegrantes/eliminar", methods=["POST"])
+@login
 def eliminarequiposintegrantes():
     if not con.is_connected():
         con.reconnect()
@@ -756,6 +760,7 @@ def cargarIntegrantes():
 
 # Obtener un registro específico de equiposintegrantes (para modificar)
 @app.route("/equiposintegrantes/<int:id>", methods=["GET"])
+@login
 def obtenerEquipoIntegrante(id):
     """
     Devuelve los datos de un equipo-integrante específico según su idEquipoIntegrante.
@@ -797,6 +802,7 @@ def obtenerEquipoIntegrante(id):
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
+
 
 
 
