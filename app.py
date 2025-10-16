@@ -5,7 +5,7 @@
 # pip install -r requirements.txt
 
 from functools import wraps
-from flask import Flask, render_template, request, jsonify, make_response, session
+from flask import Flask, render_template, request, jsonify, make_response, session, redirect, url_for
 
 from flask_cors import CORS, cross_origin
 
@@ -14,9 +14,13 @@ import pusher
 import pytz
 import datetime
 
-app            = Flask(__name__)
-app.secret_key = "Test12345"
+app = Flask(__name__)
+app.secret_key = "clave_secreta"  # Puedes poner cualquier string aquí
+app.config["SESSION_COOKIE_SECURE"] = False
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+
 CORS(app)
+
 
 con_pool = mysql.connector.pooling.MySQLConnectionPool(
     pool_name="my_pool",
@@ -56,16 +60,24 @@ def pusherProyectosAvances():
 def login(fun):
     @wraps(fun)
     def decorador(*args, **kwargs):
-        if not session.get("login"):
-            if request.path.startswith("/api") or request.is_json:
-                return jsonify({
-                    "estado": "error",
-                    "respuesta": "No has iniciado sesión"
-                }), 401
-            else:
-                return redirect(url_for("appLogin"))
+        try:
+            if not session.get("login"):
+                if request.path.startswith("/api") or request.is_json:
+                    return jsonify({
+                        "estado": "error",
+                        "respuesta": "No has iniciado sesión"
+                    }), 401
+                else:
+                    return redirect(url_for("appLogin"))
+        except Exception as e:
+            # Si algo falla en el acceso a session o request, responde con error controlado
+            return jsonify({
+                "estado": "error",
+                "respuesta": f"Error interno: {str(e)}"
+            }), 500
         return fun(*args, **kwargs)
     return decorador
+
     
 # Ruta de Inicio (Landin-Page)
 @app.route("/")
@@ -722,8 +734,52 @@ def cargarIntegrantes():
     
 #////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+# Obtener un registro específico de equiposintegrantes (para modificar)
+@app.route("/equiposintegrantes/<int:id>", methods=["GET"])
+def obtenerEquipoIntegrante(id):
+    """
+    Devuelve los datos de un equipo-integrante específico según su idEquipoIntegrante.
+    Sirve para llenar el formulario cuando se hace clic en 'Modificar'.
+    """
+    try:
+        con = con_pool.get_connection()
+        cursor = con.cursor(dictionary=True)
+
+        sql = """
+        SELECT 
+            ei.idEquipoIntegrante,
+            ei.idEquipo,
+            ei.idIntegrante,
+            e.nombreEquipo,
+            i.nombreIntegrante
+        FROM equiposintegrantes ei
+        INNER JOIN equipos e ON e.idEquipo = ei.idEquipo
+        INNER JOIN integrantes i ON i.idIntegrante = ei.idIntegrante
+        WHERE ei.idEquipoIntegrante = %s
+        """
+        cursor.execute(sql, (id,))
+        registro = cursor.fetchone()
+
+        return make_response(jsonify(registro))
+
+    except Exception as e:
+        print(f"Error al obtener equipo-integrante: {e}")
+        return make_response(jsonify({"error": "Error al obtener el registro"}), 500)
+
+    finally:
+        if cursor:
+            cursor.close()
+        if con and con.is_connected():
+            con.close()
+
+
+
+
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
+
+
+
 
 
 
