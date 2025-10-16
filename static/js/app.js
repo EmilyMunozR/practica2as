@@ -196,6 +196,7 @@ app.controller("integrantesCtrl", function ($scope, $http) {
 
     var pusher = new Pusher('85576a197a0fb5c211de', { cluster: 'us2' });
     var channel = pusher.subscribe("integranteschannel");
+    
     channel.bind("integrantesevent", function(data) {
         buscarIntegrantes();
     });
@@ -214,7 +215,7 @@ app.controller("integrantesCtrl", function ($scope, $http) {
         
         $.post("/integrante", {
             idIntegrante: "",
-            nombreIntegrante: $("#txtNombreIntegrante").val()
+            nombreIntegrante: nombreIntegrante
         }).done(function () {
             alert("Integrante Añadido correctamente");
             $("#frmIntegrante")[0].reset();
