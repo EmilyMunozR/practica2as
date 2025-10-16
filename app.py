@@ -722,8 +722,50 @@ def cargarIntegrantes():
     
 #////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+# Obtener un registro específico de equiposintegrantes (para modificar)
+@app.route("/equiposintegrantes/<int:id>", methods=["GET"])
+def obtenerEquipoIntegrante(id):
+    """
+    Devuelve los datos de un equipo-integrante específico según su idEquipoIntegrante.
+    Sirve para llenar el formulario cuando se hace clic en 'Modificar'.
+    """
+    try:
+        con = con_pool.get_connection()
+        cursor = con.cursor(dictionary=True)
+
+        sql = """
+        SELECT 
+            ei.idEquipoIntegrante,
+            ei.idEquipo,
+            ei.idIntegrante,
+            e.nombreEquipo,
+            i.nombreIntegrante
+        FROM equiposintegrantes ei
+        INNER JOIN equipos e ON e.idEquipo = ei.idEquipo
+        INNER JOIN integrantes i ON i.idIntegrante = ei.idIntegrante
+        WHERE ei.idEquipoIntegrante = %s
+        """
+        cursor.execute(sql, (id,))
+        registro = cursor.fetchone()
+
+        return make_response(jsonify(registro))
+
+    except Exception as e:
+        print(f"Error al obtener equipo-integrante: {e}")
+        return make_response(jsonify({"error": "Error al obtener el registro"}), 500)
+
+    finally:
+        if cursor:
+            cursor.close()
+        if con and con.is_connected():
+            con.close()
+
+
+
+
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
+
 
 
 
