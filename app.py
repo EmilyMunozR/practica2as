@@ -5,7 +5,7 @@
 # pip install -r requirements.txt
 
 from functools import wraps
-from flask import Flask, render_template, request, jsonify, make_response, session, redirect, url_for
+from flask import Flask, render_template, request, jsonify, make_response, session
 
 from flask_cors import CORS, cross_origin
 
@@ -15,9 +15,7 @@ import pytz
 import datetime
 
 app = Flask(__name__)
-app.secret_key = "clave_secreta"  # Puedes poner cualquier string aquí
-app.config["SESSION_COOKIE_SECURE"] = False
-app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+app.secret_key = "nonono" 
 
 CORS(app)
 
@@ -769,6 +767,7 @@ def obtenerEquipoIntegrante(id):
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
+
 
 
 
