@@ -141,7 +141,7 @@ app.controller("appCtrl", function ($scope, $http, $rootScope, $location) {
                 localStorage.setItem("login", "1")
                 localStorage.setItem("preferencias", JSON.stringify(respuesta[0]))
                 $("#frmInicioSesion").get(0).reset()
-                location.reload()
+                window.location.href = "/dashboard#/integrantes";
                 return
             }
 
@@ -688,6 +688,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash);
 });
+
 
 
 
