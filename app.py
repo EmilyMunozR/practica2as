@@ -274,8 +274,9 @@ def editarIntegrante(id):
 
     cursor.execute(sql, val)
     registros = cursor.fetchall()
+    
     if cursor:
-        con.close()
+        cursor.close()
     if con and con.is_connected():
         con.close()
 
@@ -784,6 +785,7 @@ def obtenerEquipoIntegrante(id):
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
+
 
 
 
