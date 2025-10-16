@@ -207,7 +207,7 @@ app.controller("integrantesCtrl", function ($scope, $http) {
     $(document).on("submit", "#frmIntegrante", function (event) {
         event.preventDefault();
         
-        const id = $("#idIntegrante").val()
+        const id = $("#idIntegrante").val().trim()
         const nombreIntegrante = $("#txtNombreIntegrante").val().trim()
 
          if (!nombreIntegrante) {
@@ -691,6 +691,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash);
 });
+
 
 
 
