@@ -534,6 +534,34 @@ def guardarProyectos():
     pusherProyectos()
     return make_response(jsonify({"mensaje": "Proyecto guardado"}))
 
+
+
+@app.route("/proyectos/<int:id>", methods=["GET"])
+def obtenerProyecto(id):
+    if not con.is_connected():
+        con.reconnect()
+
+    cursor = con.cursor(dictionary=True)
+    sql = """
+    SELECT 
+        p.idProyecto,
+        p.tituloProyecto,
+        p.idEquipo,
+        p.objetivo,
+        p.estado,
+        e.nombreEquipo
+    FROM proyectos AS p
+    INNER JOIN equipos AS e ON p.idEquipo = e.idEquipo
+    WHERE p.idProyecto = %s
+    """
+    val = (id,)
+    
+    cursor.execute(sql, val)
+    proyecto = cursor.fetchone()
+    con.close()
+    
+    return make_response(jsonify(proyecto))
+
 ############# Eliminar
 @app.route("/proyectos/eliminar", methods=["POST"])
 def eliminarProyecto():
@@ -770,5 +798,6 @@ def obtenerEquipoIntegrante(id):
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
+
 
 
