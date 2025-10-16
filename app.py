@@ -16,7 +16,7 @@ import datetime
 
 app = Flask(__name__)
 app.secret_key = "clave_secreta"  # Puedes poner cualquier string aquí
-app.config["SESSION_COOKIE_SECURE"] = True
+app.config["SESSION_COOKIE_SECURE"] = False
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 
 CORS(app)
@@ -777,6 +777,7 @@ def obtenerEquipoIntegrante(id):
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
+
 
 
 
