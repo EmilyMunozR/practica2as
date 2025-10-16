@@ -76,6 +76,7 @@ def landingPage():
 
 # Te regresa a (index)
 @app.route("/dashboard")
+@login
 def dashboard():
     return render_template("dashboard.html")
 
@@ -772,6 +773,7 @@ def obtenerEquipoIntegrante(id):
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
+
 
 
 
