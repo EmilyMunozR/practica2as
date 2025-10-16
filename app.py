@@ -154,25 +154,33 @@ def integrantes():
 
 # Traer los registros de integrantes en el tbody
 @app.route("/tbodyIntegrantes")
+@login
 def tbodyProductos():
-    if not con.is_connected():
-        con.reconnect()
+    try:
+        con = con_pool.get_connection()
+        cursor = con.cursor(dictionary=True)
 
-    cursor = con.cursor(dictionary=True)
-    sql    = """
-    SELECT idIntegrante,
-           nombreIntegrante
+        sql = """
+        SELECT idIntegrante, nombreIntegrante
+        FROM integrantes
+        ORDER BY idIntegrante DESC
+        LIMIT 10 OFFSET 0
+        """
+        cursor.execute(sql)
+        registros = cursor.fetchall()
 
-    FROM integrantes
+        return render_template("tbodyIntegrantes.html", integrantes=registros)
 
-    ORDER BY idIntegrante DESC
-    LIMIT 10 OFFSET 0
-    """
+    except Exception as e:
+        print("Error en /tbodyIntegrantes:", str(e))
+        return jsonify({"error": "Error interno al cargar integrantes"}), 500
 
-    cursor.execute(sql)
-    registros = cursor.fetchall()
-    
-    return render_template("tbodyIntegrantes.html", integrantes=registros)
+    finally:
+        if cursor:
+            cursor.close()
+        if con and con.is_connected():
+            con.close()
+
 
 # Funcionamiento de la busuqeda de integrantes
 @app.route("/integrantes/buscar", methods=["GET"])
@@ -764,6 +772,7 @@ def obtenerEquipoIntegrante(id):
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
+
 
 
 
