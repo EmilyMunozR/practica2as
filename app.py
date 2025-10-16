@@ -289,26 +289,29 @@ def editarIntegrante(id):
 @app.route("/integrante/eliminar", methods=["POST"])
 @login
 def eliminarIntegrante():
-    id = request.form["id"]
+    try:
+        id = request.form["id"]
 
-    con     = con_pool.get_connection()
-    cursor  = con.cursor(dictionary=True)
-    sql     = """
-    DELETE FROM integrantes 
-    WHERE idIntegrante = %s
-    """
-    
-    val = (id,)
-    
-    cursor.execute(sql, val)
-    con.commit()
-    if cursor:
-        con.close()
-    if con and con.is_connected():
-        con.close()
-        
-    pusherIntegrantes()
-    return make_response(jsonify({"mensaje": "Integrante Eliminado"}))
+        con = con_pool.get_connection()
+        cursor = con.cursor()
+        sql = "DELETE FROM integrantes WHERE idIntegrante = %s"
+        val = (id,)
+
+        cursor.execute(sql, val)
+        con.commit()
+
+        pusherIntegrantes()
+        return make_response(jsonify({"mensaje": "Integrante Eliminado"}))
+
+    except Exception as e:
+        print("Error al eliminar integrante:", str(e))
+        return jsonify({"error": "Error interno al eliminar"}), 500
+
+    finally:
+        if cursor:
+            cursor.close()
+        if con and con.is_connected():
+            con.close()
 
 
 #   Rutas  De  Proyectos Avances    
@@ -781,6 +784,7 @@ def obtenerEquipoIntegrante(id):
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
+
 
 
 
