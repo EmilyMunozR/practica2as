@@ -279,7 +279,11 @@ def editarIntegrante(id):
     if con and con.is_connected():
         con.close()
 
-    return make_response(jsonify(registros[0]))
+    if registros:
+        return make_response(jsonify(registros[0]))
+    else:
+        return jsonify({"error": "Integrante no encontrado"}), 404
+
 
 # Funcionamiento de eliminar integrantes
 @app.route("/integrante/eliminar", methods=["POST"])
@@ -777,6 +781,7 @@ def obtenerEquipoIntegrante(id):
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
+
 
 
 
