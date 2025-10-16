@@ -179,16 +179,15 @@ app.controller("appCtrl", function ($scope, $http, $rootScope, $location) {
 ///////////////// DashboardController
 app.controller("dashboardCtrl", function ($scope, $rootScope, $http) {
     $http.get("/preferencias")
-        .then(function (respuesta) {
-            $rootScope.login = true;
-            $rootScope.spinnerGrow = false;
-            $rootScope.usuario = respuesta.data.usr;
-            $rootScope.tipoUsuario = respuesta.data.tipo;
-        })
-        .catch(function () {
-            $rootScope.login = false;
-            $rootScope.spinnerGrow = false;
-        });
+    .then(function (respuesta) {
+        $rootScope.login = true;
+        $rootScope.usuario = respuesta.data.usr;
+        $rootScope.tipoUsuario = respuesta.data.tipo;
+    })
+    .catch(function () {
+        $rootScope.login = false;
+    });
+
 });
 
 
@@ -702,6 +701,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash);
 });
+
 
 
 
