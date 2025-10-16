@@ -164,10 +164,6 @@ app.controller("appCtrl", function ($scope, $http, $rootScope, $location) {
                     localStorage.setItem("preferencias", JSON.stringify(respuesta.usuario || {}));
                     $("#frmInicioSesion")[0].reset();
                     window.location.href = "/dashboard#/integrantes";
-                    setTimeout(function () {
-                        location.reload();
-                    }, 500);
-
                 } else {
                     pop(".div-inicio-sesion", "Usuario y/o contraseña incorrectos", "danger");
                 }
@@ -705,6 +701,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash);
 });
+
 
 
 
