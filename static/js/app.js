@@ -163,7 +163,7 @@ app.controller("appCtrl", function ($scope, $http, $rootScope, $location) {
                     localStorage.setItem("login", "1");
                     localStorage.setItem("preferencias", JSON.stringify(respuesta.usuario || {}));
                     $("#frmInicioSesion")[0].reset();
-                    window.location.href = "/dashboard"
+                    window.location.href = "/dashboard#/integrantes"
                 } else {
                     pop(".div-inicio-sesion", "Usuario y/o contraseña incorrectos", "danger");
                 }
@@ -220,7 +220,7 @@ app.controller("integrantesCtrl", function ($scope, $http) {
         const id = $("#idIntegrante").val()
         const nombreIntegrnate = $("#txtNombreIntegrante").val().trim()
 
-         if (!nombre) {
+         if (!nombreIntegrante) {
             alert("Por favor ingresa un integrante.")
             return
         }
@@ -701,6 +701,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash);
 });
+
 
 
 
