@@ -329,6 +329,7 @@ def eliminarIntegrante():
 
 #   Rutas  De  Proyectos Avances    
 @app.route("/proyectosavances")
+@login
 def proyectosavances():
     if not con.is_connected():
         con.reconnect()
@@ -347,6 +348,7 @@ def proyectosavances():
     # funcion para mandarlos a la funcion lista deljsjsjs
     return render_template("proyectosavances.html", proyectos=proyectos)
 @app.route("/proyectos/lista")
+@login
 def listaProyectos():
     try:
         if not con.is_connected():
@@ -368,6 +370,7 @@ def listaProyectos():
         return make_response(jsonify({"error": str(e)}), 500)
 
 @app.route("/tbodyProyectosAvances")
+@login
 def tbodyProyectosAvances():
     if not con.is_connected():
         con.reconnect()
@@ -392,6 +395,7 @@ def tbodyProyectosAvances():
 
 
 @app.route("/proyectoavance", methods=["POST"])
+@login
 def guardarProyectoAvance():
     if not con.is_connected():
         con.reconnect()
@@ -429,6 +433,7 @@ def guardarProyectoAvance():
 
 
 @app.route("/proyectoavance/eliminar", methods=["POST"])
+@login
 def eliminarProyectoAvance():
     if not con.is_connected():
         con.reconnect()
@@ -457,10 +462,12 @@ def eliminarProyectoAvance():
 
 
 @app.route("/proyectos")
+@login
 def proyectos():
     return render_template("proyectos.html")
 
 @app.route("/tbodyProyectos")
+@login
 def tbodyProyectos():
     if not con.is_connected():
         con.reconnect()
@@ -490,6 +497,7 @@ def tbodyProyectos():
     return render_template("tbodyProyectos.html", proyectos=registros)
 
 @app.route("/proyectos/buscar", methods=["GET"])
+@login
 def buscarProyectos():
     if not con.is_connected():
         con.reconnect()
@@ -525,6 +533,7 @@ def buscarProyectos():
     return make_response(jsonify(registros))
 
 @app.route("/proyectos", methods=["POST"])
+@login
 def guardarProyectos():
     if not con.is_connected():
         con.reconnect()
@@ -563,6 +572,7 @@ def guardarProyectos():
 
 ############# Eliminar
 @app.route("/proyectos/eliminar", methods=["POST"])
+@login
 def eliminarProyecto():
     if not con.is_connected():
         con.reconnect()
@@ -596,6 +606,7 @@ def eliminarProyecto():
 
 #//////////////esta wea me trae una lista pal inerjoin //////////////////////////////////////////////////////////
 @app.route("/equipos/lista")
+@login
 def cargarEquipos():
     if not con.is_connected():
         con.reconnect()
@@ -804,6 +815,7 @@ def obtenerEquipoIntegrante(id):
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
+
 
 
 
