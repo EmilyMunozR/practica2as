@@ -137,7 +137,7 @@ app.controller("appCtrl", function ($scope, $http, $rootScope, $location) {
         $.post("iniciarSesion", $(this).serialize(), function (respuesta) {
             enableAll()
 
-            if (respuesta.length) {
+            if (respuesta.mensaje) {
                 localStorage.setItem("login", "1")
                 localStorage.setItem("preferencias", JSON.stringify(respuesta[0]))
                 $("#frmInicioSesion").get(0).reset()
@@ -688,6 +688,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash);
 });
+
 
 
 
