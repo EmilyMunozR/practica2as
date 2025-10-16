@@ -620,6 +620,7 @@ def equiposintegrantes():
     return render_template("equiposintegrantes.html")
 
 @app.route("/tbodyEquiposIntegrantes")
+@login
 def tbodyEquiposIntegrantes():
     if not con.is_connected():
         con.reconnect()
@@ -803,6 +804,7 @@ def obtenerEquipoIntegrante(id):
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
+
 
 
 
