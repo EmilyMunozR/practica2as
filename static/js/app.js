@@ -24,6 +24,8 @@ function enableAll() {
         el.classList.remove("disabled")
     })
 }
+
+
 /*
 function debounce(fun, delay) {
     let timer
@@ -128,6 +130,7 @@ app.run(["$rootScope", "$location", "$timeout", function($rootScope, $location, 
 
 ///////////////// App Controller
 app.controller("appCtrl", function ($scope, $http, $rootScope, $location) {
+    $rootScope.login = false;
     // Evento de envío del formulario de inicio de sesión
     $("#frmInicioSesion").submit(function (event) {
         event.preventDefault();
@@ -691,6 +694,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash);
 });
+
 
 
 
