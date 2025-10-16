@@ -57,10 +57,13 @@ def login(fun):
     @wraps(fun)
     def decorador(*args, **kwargs):
         if not session.get("login"):
-            return jsonify({
-                "estado": "error",
-                "respuesta": "No has iniciado sesión"
-            }), 401
+            if request.path.startswith("/api") or request.is_json:
+                return jsonify({
+                    "estado": "error",
+                    "respuesta": "No has iniciado sesión"
+                }), 401
+            else:
+                return redirect(url_for("appLogin"))
         return fun(*args, **kwargs)
     return decorador
     
@@ -721,6 +724,7 @@ def cargarIntegrantes():
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
+
 
 
 
