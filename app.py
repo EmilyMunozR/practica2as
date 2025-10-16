@@ -1,3 +1,4 @@
+
 # python.exe -m venv .venv
 # cd .venv/Scripts
 # activate.bat
@@ -329,7 +330,6 @@ def eliminarIntegrante():
 
 #   Rutas  De  Proyectos Avances    
 @app.route("/proyectosavances")
-@login
 def proyectosavances():
     if not con.is_connected():
         con.reconnect()
@@ -345,16 +345,9 @@ def proyectosavances():
     proyectos = cursor.fetchall()
     con.close()
 
-     finally:
-        if cursor:
-            cursor.close()
-        if con and con.is_connected():
-            con.close()
-
     # funcion para mandarlos a la funcion lista deljsjsjs
-return render_template("proyectosavances.html", proyectos=proyectos)
+    return render_template("proyectosavances.html", proyectos=proyectos)
 @app.route("/proyectos/lista")
-@login
 def listaProyectos():
     try:
         if not con.is_connected():
@@ -374,15 +367,8 @@ def listaProyectos():
         
     except Exception as e:
         return make_response(jsonify({"error": str(e)}), 500)
-finally:
-        if cursor:
-            cursor.close()
-        if con and con.is_connected():
-            con.close()
-
 
 @app.route("/tbodyProyectosAvances")
-@login
 def tbodyProyectosAvances():
     if not con.is_connected():
         con.reconnect()
@@ -402,18 +388,11 @@ def tbodyProyectosAvances():
     cursor.execute(sql)
     registros = cursor.fetchall()
     con.close()
-
-    finally:
-        if cursor:
-            cursor.close()
-        if con and con.is_connected():
-            con.close()
-
+    
     return render_template("tbodyProyectosAvances.html", proyectosavances=registros)
 
 
 @app.route("/proyectoavance", methods=["POST"])
-@login
 def guardarProyectoAvance():
     if not con.is_connected():
         con.reconnect()
@@ -446,19 +425,11 @@ def guardarProyectoAvance():
     con.commit()
     con.close()
 
-
-    finally:
-        if cursor:
-            cursor.close()
-        if con and con.is_connected():
-            con.close()
-
     pusherProyectosAvances()
     return make_response(jsonify({"mensaje": "Proyecto Avance guardado"}))
 
 
 @app.route("/proyectoavance/eliminar", methods=["POST"])
-@login
 def eliminarProyectoAvance():
     if not con.is_connected():
         con.reconnect()
@@ -475,15 +446,7 @@ def eliminarProyectoAvance():
     cursor.execute(sql, val)
     con.commit()
     con.close()
-    
-    finally:
-        if cursor:
-            cursor.close()
-        if con and con.is_connected():
-            con.close()
 
-
-    
     pusherProyectosAvances()
     return make_response(jsonify({"mensaje": "Proyecto Avance eliminado"}))
 
@@ -495,12 +458,10 @@ def eliminarProyectoAvance():
 
 
 @app.route("/proyectos")
-@login
 def proyectos():
     return render_template("proyectos.html")
 
 @app.route("/tbodyProyectos")
-@login
 def tbodyProyectos():
     if not con.is_connected():
         con.reconnect()
@@ -526,19 +487,10 @@ def tbodyProyectos():
 
     cursor.execute(sql)
     registros = cursor.fetchall()
-
     
     return render_template("tbodyProyectos.html", proyectos=registros)
 
-    finally:
-        if cursor:
-            cursor.close()
-        if con and con.is_connected():
-            con.close()
-    
-
 @app.route("/proyectos/buscar", methods=["GET"])
-@login
 def buscarProyectos():
     if not con.is_connected():
         con.reconnect()
@@ -571,14 +523,9 @@ def buscarProyectos():
     finally:
         con.close()
 
-
-        if con and con.is_connected():
-            con.close()
-
     return make_response(jsonify(registros))
 
 @app.route("/proyectos", methods=["POST"])
-@login
 def guardarProyectos():
     if not con.is_connected():
         con.reconnect()
@@ -612,20 +559,11 @@ def guardarProyectos():
     con.commit()
     con.close()
 
-   
     pusherProyectos()
     return make_response(jsonify({"mensaje": "Proyecto guardado"}))
 
-     finally:
-        if cursor:
-            cursor.close()
-        if con and con.is_connected():
-            con.close()
-
-
 ############# Eliminar
 @app.route("/proyectos/eliminar", methods=["POST"])
-@login
 def eliminarProyecto():
     if not con.is_connected():
         con.reconnect()
@@ -653,17 +591,12 @@ def eliminarProyecto():
         print(f"Error al eliminar proyecto: {error}")
         return make_response(jsonify({"error": "Error al eliminar proyecto"}), 500)
         
-        finally:
-        if cursor:
-            cursor.close()
-        if con and con.is_connected():
-            con.close()
-
+    finally:
+        con.close()
 
 
 #//////////////esta wea me trae una lista pal inerjoin //////////////////////////////////////////////////////////
 @app.route("/equipos/lista")
-@login
 def cargarEquipos():
     if not con.is_connected():
         con.reconnect()
@@ -678,17 +611,8 @@ def cargarEquipos():
     cursor.execute(sql)
     registros = cursor.fetchall()
     con.close()
-
-
     
     return make_response(jsonify(registros))
-
- finally:
-        if cursor:
-            cursor.close()
-        if con and con.is_connected():
-            con.close()
-
 #////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 @app.route("/equiposintegrantes")
@@ -720,16 +644,8 @@ def tbodyEquiposIntegrantes():
     cursor.execute(sql)
     registros = cursor.fetchall()
 
-
     cursor.close()
     return render_template("tbodyEquiposIntegrantes.html", equiposintegrantes=registros)
-
-    finally:
-        if cursor:
-            cursor.close()
-        if con and con.is_connected():
-            con.close()
-
     
 @app.route("/equiposintegrantes/buscar", methods=["GET"])
 @login
@@ -765,15 +681,7 @@ def buscarEquiposIntegrantes():
     finally:
         con.close()
 
-
     return make_response(jsonify(registros))
-
-    finally:
-        if cursor:
-            cursor.close()
-        if con and con.is_connected():
-            con.close()
-
 
 @app.route("/equiposintegrantes", methods=["POST"])
 @login
@@ -808,15 +716,7 @@ def guardarEquiposIntegrantes():
     con.close()
 
     pusherEquiposIntegrantes()
-
     return make_response(jsonify({"mensaje": "EquipoIntegrante guardado"}))
-
-    finally:
-        if cursor:
-            cursor.close()
-        if con and con.is_connected():
-            con.close()
-
 
 @app.route("/equiposintegrantes/eliminar", methods=["POST"])
 @login
@@ -840,13 +740,6 @@ def eliminarequiposintegrantes():
     pusherEquiposIntegrantes()
     return make_response(jsonify({"mensaje": "Equipo Integrante eliminado"}))
 
-    finally:
-        if cursor:
-            cursor.close()
-        if con and con.is_connected():
-            con.close()
-
-
 @app.route("/integrantes/lista")
 @login
 def cargarIntegrantes():
@@ -865,13 +758,6 @@ def cargarIntegrantes():
     con.close()
     
     return make_response(jsonify(registros))
-
-    finally:
-        if cursor:
-            cursor.close()
-        if con and con.is_connected():
-            con.close()
-
     
 #////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -915,58 +801,5 @@ def obtenerEquipoIntegrante(id):
             con.close()
 
 
-
-
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
