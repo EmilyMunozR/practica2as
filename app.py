@@ -139,12 +139,16 @@ def cerrarSesion():
     return make_response(jsonify({}))
 
 @app.route("/preferencias")
-@login
 def preferencias():
-    return make_response(jsonify({
+    if not session.get("login"):
+        return jsonify({"estado": "error"}), 401
+
+    return jsonify({
+        "estado": "ok",
         "usr": session.get("login-usr"),
-        "tipo": session.get("login-tipo", 2)
-    }))
+        "tipo": session.get("login-tipo")
+    })
+
     
 #
 #///////////////////////////// INTEGRANTES ///////////
@@ -798,6 +802,7 @@ def obtenerEquipoIntegrante(id):
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
+
 
 
 
