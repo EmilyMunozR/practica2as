@@ -198,8 +198,10 @@ app.controller("integrantesCtrl", function ($scope, $http) {
     var channel = pusher.subscribe("integranteschannel");
     
     channel.bind("integrantesevent", function(data) {
+        console.log("Evento recibido de Pusher");
         buscarIntegrantes();
     });
+
 
     // Insertar Integrantes
     $(document).on("submit", "#frmIntegrante", function (event) {
@@ -214,7 +216,7 @@ app.controller("integrantesCtrl", function ($scope, $http) {
         }
         
         $.post("/integrante", {
-            idIntegrante: "",
+            idIntegrante: id,
             nombreIntegrante: nombreIntegrante
         }).done(function () {
             alert("Integrante Añadido correctamente");
@@ -689,6 +691,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash);
 });
+
 
 
 
