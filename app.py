@@ -739,6 +739,7 @@ def eliminarequiposintegrantes():
     return make_response(jsonify({"mensaje": "Equipo Integrante eliminado"}))
 
 @app.route("/integrantes/lista")
+@login
 def cargarIntegrantes():
     if not con.is_connected():
         con.reconnect()
@@ -802,6 +803,7 @@ def obtenerEquipoIntegrante(id):
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
+
 
 
 
