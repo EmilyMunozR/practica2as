@@ -9,7 +9,7 @@ function activeMenuOption(href) {
         .addClass("active")
         .attr("aria-current", "page");
 }
-
+/*
 function disableAll() {
     const elements = document.querySelectorAll(".while-waiting")
     elements.forEach(function (el, index) {
@@ -47,7 +47,7 @@ const configFechaHora = {
     dateFormat: "Y-m-d",
     // time_24hr: false
 }
-
+*/
 const app = angular.module("angularjsApp", ["ngRoute"]);
 app.config(function ($routeProvider, $locationProvider) {
     $locationProvider.hashPrefix("");
@@ -692,6 +692,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash);
 });
+
 
 
 
