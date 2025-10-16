@@ -5,7 +5,7 @@
 # pip install -r requirements.txt
 
 from functools import wraps
-from flask import Flask, render_template, request, jsonify, make_response, session
+from flask import Flask, render_template, request, jsonify, make_response, session, redirect, url_for
 
 from flask_cors import CORS, cross_origin
 
@@ -60,16 +60,24 @@ def pusherProyectosAvances():
 def login(fun):
     @wraps(fun)
     def decorador(*args, **kwargs):
-        if not session.get("login"):
-            if request.path.startswith("/api") or request.is_json:
-                return jsonify({
-                    "estado": "error",
-                    "respuesta": "No has iniciado sesión"
-                }), 401
-            else:
-                return redirect(url_for("appLogin"))
+        try:
+            if not session.get("login"):
+                if request.path.startswith("/api") or request.is_json:
+                    return jsonify({
+                        "estado": "error",
+                        "respuesta": "No has iniciado sesión"
+                    }), 401
+                else:
+                    return redirect(url_for("appLogin"))
+        except Exception as e:
+            # Si algo falla en el acceso a session o request, responde con error controlado
+            return jsonify({
+                "estado": "error",
+                "respuesta": f"Error interno: {str(e)}"
+            }), 500
         return fun(*args, **kwargs)
     return decorador
+
     
 # Ruta de Inicio (Landin-Page)
 @app.route("/")
