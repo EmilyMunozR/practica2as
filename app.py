@@ -6,7 +6,6 @@
 
 from functools import wraps
 from flask import Flask, render_template, request, jsonify, make_response, session
-from equipos_service import equipos_bp 
 
 from flask_cors import CORS, cross_origin
 
@@ -15,13 +14,9 @@ import pusher
 import pytz
 import datetime
 
-app = Flask(__name__)
-app.secret_key = "clave_secreta"  # Puedes poner cualquier string aquí
-app.config["SESSION_COOKIE_SECURE"] = True
-app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
-
+app            = Flask(__name__)
+app.secret_key = "Test12345"
 CORS(app)
-
 
 con_pool = mysql.connector.pooling.MySQLConnectionPool(
     pool_name="my_pool",
@@ -31,8 +26,6 @@ con_pool = mysql.connector.pooling.MySQLConnectionPool(
     user="u760464709_23005014_usr",
     password="B|7k3UPs3&P"
 )
-
-app.register_blueprint(equipos_bp)
 
 def pusherBase(channel, event, message="hello"):
     pusher_client = pusher.Pusher(
@@ -81,6 +74,7 @@ def landingPage():
 
 # Te regresa a (index)
 @app.route("/dashboard")
+@login
 def dashboard():
     return render_template("dashboard.html")
 
@@ -142,28 +136,22 @@ def cerrarSesion():
     return make_response(jsonify({}))
 
 @app.route("/preferencias")
+@login
 def preferencias():
-    if not session.get("login"):
-        return jsonify({"estado": "error"}), 401
-
-    return jsonify({
-        "estado": "ok",
+    return make_response(jsonify({
         "usr": session.get("login-usr"),
-        "tipo": session.get("login-tipo")
-    })
-
+        "tipo": session.get("login-tipo", 2)
+    }))
     
 #
 #///////////////////////////// INTEGRANTES ///////////
 #   Rutas  De  Integrantes    
 @app.route("/integrantes")
-@login
 def integrantes():
     return render_template("integrantes.html")
 
 # Traer los registros de integrantes en el tbody
 @app.route("/tbodyIntegrantes")
-@login
 def tbodyProductos():
     if not con.is_connected():
         con.reconnect()
@@ -280,12 +268,12 @@ def editarIntegrante(id):
     if con and con.is_connected():
         con.close()
 
-    return make_response(jsonify(registros[0]))
+    return make_response(jsonify({"mensaje": "Integrante Modificado"}))
 
 # Funcionamiento de eliminar integrantes
 @app.route("/integrante/eliminar", methods=["POST"])
 def eliminarIntegrante():
-    id = request.form["id"]
+    id = request.form("id")
 
     con     = con_pool.get_connection()
     cursor  = con.cursor(dictionary=True)
@@ -541,34 +529,6 @@ def guardarProyectos():
     pusherProyectos()
     return make_response(jsonify({"mensaje": "Proyecto guardado"}))
 
-
-
-@app.route("/proyectos/<int:id>", methods=["GET"])
-def obtenerProyecto(id):
-    if not con.is_connected():
-        con.reconnect()
-
-    cursor = con.cursor(dictionary=True)
-    sql = """
-    SELECT 
-        p.idProyecto,
-        p.tituloProyecto,
-        p.idEquipo,
-        p.objetivo,
-        p.estado,
-        e.nombreEquipo
-    FROM proyectos AS p
-    INNER JOIN equipos AS e ON p.idEquipo = e.idEquipo
-    WHERE p.idProyecto = %s
-    """
-    val = (id,)
-    
-    cursor.execute(sql, val)
-    proyecto = cursor.fetchone()
-    con.close()
-    
-    return make_response(jsonify(proyecto))
-
 ############# Eliminar
 @app.route("/proyectos/eliminar", methods=["POST"])
 def eliminarProyecto():
@@ -762,49 +722,31 @@ def cargarIntegrantes():
     
 #////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-# Obtener un registro específico de equiposintegrantes (para modificar)
-@app.route("/equiposintegrantes/<int:id>", methods=["GET"])
-def obtenerEquipoIntegrante(id):
-    """
-    Devuelve los datos de un equipo-integrante específico según su idEquipoIntegrante.
-    Sirve para llenar el formulario cuando se hace clic en 'Modificar'.
-    """
-    try:
-        con = con_pool.get_connection()
-        cursor = con.cursor(dictionary=True)
-
-        sql = """
-        SELECT 
-            ei.idEquipoIntegrante,
-            ei.idEquipo,
-            ei.idIntegrante,
-            e.nombreEquipo,
-            i.nombreIntegrante
-        FROM equiposintegrantes ei
-        INNER JOIN equipos e ON e.idEquipo = ei.idEquipo
-        INNER JOIN integrantes i ON i.idIntegrante = ei.idIntegrante
-        WHERE ei.idEquipoIntegrante = %s
-        """
-        cursor.execute(sql, (id,))
-        registro = cursor.fetchone()
-
-        return make_response(jsonify(registro))
-
-    except Exception as e:
-        print(f"Error al obtener equipo-integrante: {e}")
-        return make_response(jsonify({"error": "Error al obtener el registro"}), 500)
-
-    finally:
-        if cursor:
-            cursor.close()
-        if con and con.is_connected():
-            con.close()
-
-
-
-
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
