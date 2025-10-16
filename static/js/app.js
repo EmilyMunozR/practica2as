@@ -139,7 +139,7 @@ app.controller("appCtrl", function ($scope, $http, $rootScope, $location) {
 
             if (respuesta.mensaje) {
                 localStorage.setItem("login", "1")
-                localStorage.setItem("preferencias", JSON.stringify(respuesta[0]))
+                localStorage.setItem("preferencias", JSON.stringify(respuesta.usuario))
                 $("#frmInicioSesion").get(0).reset()
                 window.location.href = "/dashboard#/integrantes";
                 return
@@ -688,6 +688,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash);
 });
+
 
 
 
