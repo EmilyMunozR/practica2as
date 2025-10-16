@@ -197,6 +197,11 @@ app.controller("dashboardCtrl", function ($scope, $rootScope, $http) {
 app.controller("integrantesCtrl", function ($scope, $http) {
     function buscarIntegrantes() {
         $.get("/tbodyIntegrantes", function (trsHTML) {
+            if (trsHTML.includes("txtUsuario")) {
+                alert("Tu sesión ha expirado. Redirigiendo al login.");
+                window.location.href = "/";
+                return;
+            }
             $("#tbodyIntegrantes").html(trsHTML);
         }).fail(function () {
             console.log("Error al cargar integrantes");
@@ -701,6 +706,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash);
 });
+
 
 
 
