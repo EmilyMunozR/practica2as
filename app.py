@@ -159,11 +159,13 @@ def preferencias():
 #///////////////////////////// INTEGRANTES ///////////
 #   Rutas  De  Integrantes    
 @app.route("/integrantes")
+@login
 def integrantes():
     return render_template("integrantes.html")
 
 # Traer los registros de integrantes en el tbody
 @app.route("/tbodyIntegrantes")
+@login
 def tbodyProductos():
     if not con.is_connected():
         con.reconnect()
@@ -280,12 +282,12 @@ def editarIntegrante(id):
     if con and con.is_connected():
         con.close()
 
-    return make_response(jsonify({"mensaje": "Integrante Modificado"}))
+    return make_response(jsonify(registros[0]))
 
 # Funcionamiento de eliminar integrantes
 @app.route("/integrante/eliminar", methods=["POST"])
 def eliminarIntegrante():
-    id = request.form("id")
+    id = request.form["id"]
 
     con     = con_pool.get_connection()
     cursor  = con.cursor(dictionary=True)
@@ -777,6 +779,7 @@ def obtenerEquipoIntegrante(id):
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
+
 
 
 
