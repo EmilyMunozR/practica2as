@@ -810,13 +810,10 @@ def cargarIntegrantes():
 @app.route("/equiposintegrantes/<int:id>", methods=["GET"])
 @login
 def obtenerEquipoIntegrante(id):
-    """
-    Devuelve los datos de un equipo-integrante específico según su idEquipoIntegrante.
-    Sirve para llenar el formulario cuando se hace clic en 'Modificar'.
-    """
-    try:
-        con = con_pool.get_connection()
-        cursor = con.cursor(dictionary=True)
+
+    if not con.is_connected():
+        con.reconnect()
+
 
         sql = """
         SELECT 
@@ -830,10 +827,11 @@ def obtenerEquipoIntegrante(id):
         INNER JOIN integrantes i ON i.idIntegrante = ei.idIntegrante
         WHERE ei.idEquipoIntegrante = %s
         """
-        cursor.execute(sql, (id,))
-        registro = cursor.fetchone()
+       cursor.execute(sql)
+    registros = cursor.fetchall()
+    con.close()
 
-        return make_response(jsonify(registro))
+        return make_response(jsonify(registros))
 
     except Exception as e:
         print(f"Error al obtener equipo-integrante: {e}")
@@ -848,6 +846,7 @@ def obtenerEquipoIntegrante(id):
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
+
 
 
 
