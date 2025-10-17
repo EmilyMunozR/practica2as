@@ -26,12 +26,10 @@ pusher_client = pusher.Pusher(
 equipos_bp = Blueprint("equipos_bp", __name__)
 
 @equipos_bp.route("/equipos")
-@login
 def equipos():
     return render_template("equipos.html")
 
 @equipos_bp.route("/tbodyEquipos")
-@login
 def tbodyEquipos():
     con = get_connection()
     cursor = con.cursor(dictionary=True)
@@ -47,7 +45,6 @@ def tbodyEquipos():
     return render_template("tbodyEquipos.html", equipos=registros)
 
 @equipos_bp.route("/equipos/buscar", methods=["GET"])
-@login
 def buscarEquipos():
     con = get_connection()
     args = request.args
@@ -67,7 +64,6 @@ def buscarEquipos():
     return make_response(jsonify(registros))
 
 @equipos_bp.route("/equipo", methods=["POST"])
-@login
 def guardarEquipo():
     con = get_connection()
     idEquipo = request.form.get("idEquipo")
@@ -89,7 +85,6 @@ def guardarEquipo():
     return make_response(jsonify({"mensaje": "Equipo guardado"}))
 
 @equipos_bp.route("/equipo/eliminar", methods=["POST"])
-@login
 def eliminarEquipo():
     con = get_connection()
     id = request.form.get("id")
