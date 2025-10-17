@@ -465,128 +465,126 @@ def proyectos():
 @app.route("/tbodyProyectos")
 @login
 def tbodyProyectos():
-    if not con.is_connected():
-        con.reconnect()
-
-    cursor = con.cursor(dictionary=True)
-    sql    = """
-    SELECT 
+    try:
+        con = con_pool.get_connection()
+        cursor = con.cursor(dictionary=True)
+        sql = """
+        SELECT 
             p.idProyecto,
             p.tituloProyecto,
             e.nombreEquipo,
             p.objetivo,
             p.estado
-
-    FROM proyectos AS p
-
-    INNER JOIN equipos AS e
-            ON p.idEquipo = e.idEquipo
+        FROM proyectos AS p
+        INNER JOIN equipos AS e ON p.idEquipo = e.idEquipo
+        ORDER BY p.estado DESC
+        LIMIT 10 OFFSET 0
+        """
+        cursor.execute(sql)
+        registros = cursor.fetchall()
+        
+        return render_template("tbodyProyectos.html", proyectos=registros)
     
-    ORDER BY p.estado DESC
-
-    LIMIT 10 OFFSET 0
-    """
-
-    cursor.execute(sql)
-    registros = cursor.fetchall()
-    
-    return render_template("tbodyProyectos.html", proyectos=registros)
+    finally:
+        if cursor:
+            cursor.close()
+        if con and con.is_connected():
+            con.close()
 
 @app.route("/proyectos/buscar", methods=["GET"])
 @login
 def buscarProyectos():
-    if not con.is_connected():
-        con.reconnect()
-
-    args     = request.args
+    args = request.args
     busqueda = args["busqueda"]
     busqueda = f"%{busqueda}%"
 
-    cursor = con.cursor(dictionary=True)
-    sql    = """
-
-    SELECT p.idProyecto, p.tituloProyecto, p.objetivo, p.estado
-    FROM proyectos AS p
-    INNER JOIN equipos AS e ON p.idEquipo = e.idEquipo
-    WHERE p.tituloProyecto LIKE %s    -- FALTA ESTA LÍNEA
-    ORDER BY p.estado DESC
-    LIMIT 10 OFFSET 0
-    
-    """
-    val = (busqueda,)
-
     try:
+        con = con_pool.get_connection()
+        cursor = con.cursor(dictionary=True)
+        sql = """
+        SELECT p.idProyecto, p.tituloProyecto, e.nombreEquipo, p.objetivo, p.estado
+        FROM proyectos AS p
+        INNER JOIN equipos AS e ON p.idEquipo = e.idEquipo
+        WHERE p.tituloProyecto LIKE %s
+        ORDER BY p.estado DESC
+        LIMIT 10 OFFSET 0
+        """
+        val = (busqueda,)
         cursor.execute(sql, val)
         registros = cursor.fetchall()
+        
+        return make_response(jsonify(registros))
 
     except mysql.connector.errors.ProgrammingError as error:
-        print(f"Ocurrió un error de programación en MySQL: {error}")
-        registros = []
+        print(f"Error en búsqueda: {error}")
+        return make_response(jsonify([]))
 
     finally:
-        con.close()
-
-    return make_response(jsonify(registros))
+        if cursor:
+            cursor.close()
+        if con and con.is_connected():
+            con.close()
 
 @app.route("/proyectos", methods=["POST"])
 @login
 def guardarProyectos():
-    if not con.is_connected():
-        con.reconnect()
+    try:
+        con = con_pool.get_connection()
+        
+        idProyecto = request.form.get("idProyecto", "").strip()
+        tituloProyecto = request.form["tituloProyecto"]
+        idEquipo = request.form["idEquipo"]
+        objetivo = request.form["objetivo"]
+        estado = request.form["estado"]
+        
+        cursor = con.cursor()
 
-    idProyecto = request.form["idProyecto"]
-    tituloProyecto = request.form["tituloProyecto"]
-    idEquipo = request.form["idEquipo"]
-    objetivo = request.form["objetivo"]
-    estado = request.form["estado"]
+        if idProyecto:
+            sql = """
+            UPDATE proyectos
+            SET tituloProyecto = %s,
+                idEquipo = %s,
+                objetivo = %s,
+                estado = %s
+            WHERE idProyecto = %s
+            """
+            val = (tituloProyecto, idEquipo, objetivo, estado, idProyecto)
+        else:
+            sql = """
+            INSERT INTO proyectos (tituloProyecto, idEquipo, objetivo, estado)
+            VALUES (%s, %s, %s, %s)
+            """
+            val = (tituloProyecto, idEquipo, objetivo, estado)
+
+        cursor.execute(sql, val)
+        con.commit()
+
+        pusherProyectos()
+        return make_response(jsonify({"mensaje": "Proyecto guardado"}))
     
-    cursor = con.cursor()
+    finally:
+        if cursor:
+            cursor.close()
+        if con and con.is_connected():
+            con.close()
 
-    if idProyecto:
-        sql = """
-        UPDATE proyectos
-        SET tituloProyecto = %s,
-            idEquipo = %s,
-            objetivo = %s,
-            estado = %s
-        WHERE idProyecto = %s
-        """
-        val = (tituloProyecto, idEquipo, objetivo, estado, idProyecto)
-    else:
-        sql = """
-        INSERT INTO proyectos (tituloProyecto, idEquipo, objetivo, estado)
-        VALUES (%s, %s, %s, %s)
-        """
-        val = (tituloProyecto, idEquipo, objetivo, estado)
-
-    cursor.execute(sql, val)
-    con.commit()
-    con.close()
-
-    pusherProyectos()
-    return make_response(jsonify({"mensaje": "Proyecto guardado"}))
-
-############# Eliminar
 @app.route("/proyectos/eliminar", methods=["POST"])
 @login
 def eliminarProyecto():
-    if not con.is_connected():
-        con.reconnect()
-
-    id = request.form.get("id")
-
-    cursor = con.cursor(dictionary=True)
-    sql    = """
-    DELETE FROM proyectos
-    WHERE idProyecto = %s
-    """
-    val    = (id,)
-
     try:
+        con = con_pool.get_connection()
+        id = request.form.get("id")
+
+        cursor = con.cursor(dictionary=True)
+        sql = """
+        DELETE FROM proyectos
+        WHERE idProyecto = %s
+        """
+        val = (id,)
+
         cursor.execute(sql, val)
         con.commit()
         
-        # CORRECCIÓN: Agregar la llamada a pusherProyectos()
         pusherProyectos()
         
         return make_response(jsonify({"mensaje": "Proyecto eliminado correctamente"}))
@@ -597,34 +595,66 @@ def eliminarProyecto():
         return make_response(jsonify({"error": "Error al eliminar proyecto"}), 500)
         
     finally:
-        con.close()
+        if cursor:
+            cursor.close()
+        if con and con.is_connected():
+            con.close()
 
 @app.route("/proyectos/<int:id>", methods=["GET"])
 @login
 def obtenerProyecto(id):
-    if not con.is_connected():
-        con.reconnect()
+    try:
+        con = con_pool.get_connection()
+        cursor = con.cursor(dictionary=True)
+        sql = """
+        SELECT 
+            p.idProyecto,
+            p.tituloProyecto,
+            p.idEquipo,
+            p.objetivo,
+            p.estado,
+            e.nombreEquipo
+        FROM proyectos AS p
+        INNER JOIN equipos AS e ON p.idEquipo = e.idEquipo
+        WHERE p.idProyecto = %s
+        """
+        val = (id,)
+        
+        cursor.execute(sql, val)
+        proyecto = cursor.fetchone()
+        
+        return make_response(jsonify(proyecto))
+    
+    finally:
+        if cursor:
+            cursor.close()
+        if con and con.is_connected():
+            con.close()
 
-    cursor = con.cursor(dictionary=True)
-    sql = """
-    SELECT 
-        p.idProyecto,
-        p.tituloProyecto,
-        p.idEquipo,
-        p.objetivo,
-        p.estado,
-        e.nombreEquipo
-    FROM proyectos AS p
-    INNER JOIN equipos AS e ON p.idEquipo = e.idEquipo
-    WHERE p.idProyecto = %s
-    """
-    val = (id,)
+@app.route("/equipos/lista")
+@login
+def cargarEquipos():
+    try:
+        con = con_pool.get_connection()
+        cursor = con.cursor(dictionary=True)
+        sql = """
+        SELECT idEquipo, nombreEquipo
+        FROM equipos
+        ORDER BY nombreEquipo ASC
+        """
+        
+        cursor.execute(sql)
+        registros = cursor.fetchall()
+        
+        return make_response(jsonify(registros))
     
-    cursor.execute(sql, val)
-    proyecto = cursor.fetchone()
-    con.close()
-    
-    return make_response(jsonify(proyecto))
+    finally:
+        if cursor:
+            cursor.close()
+        if con and con.is_connected():
+            con.close()
+
+
 
 #//////////////esta wea me trae una lista pal inerjoin //////////////////////////////////////////////////////////
 @app.route("/equipos/lista")
@@ -835,4 +865,5 @@ def obtenerEquipoIntegrante(id):
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
+
 
