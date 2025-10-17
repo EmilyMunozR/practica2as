@@ -657,24 +657,7 @@ def cargarEquipos():
 
 
 #//////////////esta wea me trae una lista pal inerjoin //////////////////////////////////////////////////////////
-@app.route("/equipos/lista")
-@login
-def cargarEquipos():
-    if not con.is_connected():
-        con.reconnect()
 
-    cursor = con.cursor(dictionary=True)
-    sql = """
-    SELECT idEquipo, nombreEquipo
-    FROM equipos
-    ORDER BY nombreEquipo ASC
-    """
-    
-    cursor.execute(sql)
-    registros = cursor.fetchall()
-    con.close()
-    
-    return make_response(jsonify(registros))
 #////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 @app.route("/equiposintegrantes")
@@ -865,5 +848,6 @@ def obtenerEquipoIntegrante(id):
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
+
 
 
