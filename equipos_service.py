@@ -2,7 +2,6 @@
 from flask import Blueprint, request, jsonify, render_template, make_response
 import mysql.connector
 import pusher
-from app import login
 
 # Configurar conexión local de este microservicio
 def get_connection():
