@@ -396,24 +396,17 @@ app.controller("proyectosCtrl", function ($scope, $http) {
 
     // Eliminar Proyectos
     $(document).on("click", ".btnEliminarProyecto", function () {
-    const id = $(this).data("id");
-    console.log("ID a eliminar:", id); // 👈 Agrega esto para depurar
+        const id = $(this).data("id");
 
-    if (confirm("¿Seguro que quieres eliminar este proyecto?")) {
-        $.post("/proyectos/eliminar", { id: id }, function () {
-            $(`button[data-id='${id}']`).closest("tr").remove();
-        }).fail(function (xhr) {
-            console.log("Error al eliminar:", xhr.responseText);
-            alert("Error al eliminar el proyecto");
-        });
-    }
+        if (confirm("¿Seguro que quieres eliminar este proyecto?")) {
+            $.post("/proyectos/eliminar", { id: id }, function () {
+                $(`button[data-id='${id}']`).closest("tr").remove();
+            }).fail(function () {
+                alert("Error al eliminar el proyecto");
+            });
+        }
+    });
 });
-
-    $(document).on("click", ".btnEliminarProyecto", function () {
-    alert("¡Click detectado!");
-});
-
-
 
 ////////////////// Equipos Controllers
 app.controller("equiposCtrl", function ($scope, $http) {
@@ -702,39 +695,6 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash);
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
