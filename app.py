@@ -458,10 +458,12 @@ def eliminarProyectoAvance():
 
 
 @app.route("/proyectos")
+@login
 def proyectos():
     return render_template("proyectos.html")
 
 @app.route("/tbodyProyectos")
+@login
 def tbodyProyectos():
     if not con.is_connected():
         con.reconnect()
@@ -491,6 +493,7 @@ def tbodyProyectos():
     return render_template("tbodyProyectos.html", proyectos=registros)
 
 @app.route("/proyectos/buscar", methods=["GET"])
+@login
 def buscarProyectos():
     if not con.is_connected():
         con.reconnect()
@@ -526,6 +529,7 @@ def buscarProyectos():
     return make_response(jsonify(registros))
 
 @app.route("/proyectos", methods=["POST"])
+@login
 def guardarProyectos():
     if not con.is_connected():
         con.reconnect()
@@ -564,6 +568,7 @@ def guardarProyectos():
 
 ############# Eliminar
 @app.route("/proyectos/eliminar", methods=["POST"])
+@login
 def eliminarProyecto():
     if not con.is_connected():
         con.reconnect()
@@ -594,9 +599,36 @@ def eliminarProyecto():
     finally:
         con.close()
 
+@app.route("/proyectos/<int:id>", methods=["GET"])
+@login
+def obtenerProyecto(id):
+    if not con.is_connected():
+        con.reconnect()
+
+    cursor = con.cursor(dictionary=True)
+    sql = """
+    SELECT 
+        p.idProyecto,
+        p.tituloProyecto,
+        p.idEquipo,
+        p.objetivo,
+        p.estado,
+        e.nombreEquipo
+    FROM proyectos AS p
+    INNER JOIN equipos AS e ON p.idEquipo = e.idEquipo
+    WHERE p.idProyecto = %s
+    """
+    val = (id,)
+    
+    cursor.execute(sql, val)
+    proyecto = cursor.fetchone()
+    con.close()
+    
+    return make_response(jsonify(proyecto))
 
 #//////////////esta wea me trae una lista pal inerjoin //////////////////////////////////////////////////////////
 @app.route("/equipos/lista")
+@login
 def cargarEquipos():
     if not con.is_connected():
         con.reconnect()
@@ -803,3 +835,4 @@ def obtenerEquipoIntegrante(id):
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
+
