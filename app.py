@@ -331,6 +331,7 @@ def eliminarIntegrante():
 #   Rutas  De  Proyectos Avances    
 #   Rutas  De  Proyectos Avances    
 @app.route("/proyectosavances")
+@login
 def proyectosavances():
     if not con.is_connected():
         con.reconnect()
@@ -349,6 +350,7 @@ def proyectosavances():
     # funcion para mandarlos a la funcion lista deljsjsjs
     return render_template("proyectosavances.html", proyectos=proyectos)
 @app.route("/proyectos/lista")
+@login
 def listaProyectos():
     try:
         if not con.is_connected():
@@ -370,6 +372,7 @@ def listaProyectos():
         return make_response(jsonify({"error": str(e)}), 500)
 
 @app.route("/tbodyProyectosAvances")
+@login
 def tbodyProyectosAvances():
     if not con.is_connected():
         con.reconnect()
@@ -395,6 +398,7 @@ def tbodyProyectosAvances():
 
 
 @app.route("/proyectoavance", methods=["POST"])
+@login
 def guardarProyectoAvance():
     if not con.is_connected():
         con.reconnect()
@@ -432,6 +436,7 @@ def guardarProyectoAvance():
 
 
 @app.route("/proyectoavance/eliminar", methods=["POST"])
+@login
 def eliminarProyectoAvance():
     if not con.is_connected():
         con.reconnect()
@@ -848,6 +853,7 @@ def obtenerEquipoIntegrante(id):
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
+
 
 
 
