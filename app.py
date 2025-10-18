@@ -326,29 +326,38 @@ def eliminarIntegrante():
             cursor.close()
         if con and con.is_connected():
             con.close()
+  
+#   Rutas De Proyectos Avances    
 
-
-#   Rutas  De  Proyectos Avances    
-#   Rutas  De  Proyectos Avances    
 @app.route("/proyectosavances")
 @login
 def proyectosavances():
-    if not con.is_connected():
-        con.reconnect()
+    try:
+        if not con.is_connected():
+            con.reconnect()
 
-    cursor = con.cursor(dictionary=True)
-    # Funcion para inner join demiselctt
-    sql = """
-    SELECT idProyecto, tituloProyecto
-    FROM proyectos
-    ORDER BY tituloProyecto ASC
-    """
-    cursor.execute(sql)
-    proyectos = cursor.fetchall()
-    con.close()
+        cursor = con.cursor(dictionary=True)
+        sql = """
+        SELECT idProyecto, tituloProyecto
+        FROM proyectos
+        ORDER BY tituloProyecto ASC
+        """
+        cursor.execute(sql)
+        proyectos = cursor.fetchall()
 
-    # funcion para mandarlos a la funcion lista deljsjsjs
-    return render_template("proyectosavances.html", proyectos=proyectos)
+        return render_template("proyectosavances.html", proyectos=proyectos)
+
+    except Exception as e:
+        print("Error en /proyectosavances:", str(e))
+        return jsonify({"error": "Error interno al cargar proyectos avances"}), 500
+
+    finally:
+        if cursor:
+            cursor.close()
+        if con and con.is_connected():
+            con.close()
+
+
 @app.route("/proyectos/lista")
 @login
 def listaProyectos():
@@ -364,98 +373,135 @@ def listaProyectos():
         """
         cursor.execute(sql)
         proyectos = cursor.fetchall()
-        con.close()
-        
+
         return make_response(jsonify(proyectos))
         
     except Exception as e:
+        print("Error en /proyectos/lista:", str(e))
         return make_response(jsonify({"error": str(e)}), 500)
+
+    finally:
+        if cursor:
+            cursor.close()
+        if con and con.is_connected():
+            con.close()
+
 
 @app.route("/tbodyProyectosAvances")
 @login
 def tbodyProyectosAvances():
-    if not con.is_connected():
-        con.reconnect()
+    try:
+        if not con.is_connected():
+            con.reconnect()
 
-    cursor = con.cursor(dictionary=True)
-    sql = """
-    SELECT pa.idProyectoAvance,
-           pa.idProyecto,   
-           pa.progreso,
-           pa.descripcion,
-           pa.fechaHora,
-           p.tituloProyecto
-    FROM proyectosavances pa
-    INNER JOIN proyectos p ON pa.idProyecto = p.idProyecto
-    ORDER BY pa.idProyectoAvance DESC
-    LIMIT 10 OFFSET 0
-    """
-    cursor.execute(sql)
-    registros = cursor.fetchall()
-    con.close()
-    
-    return render_template("tbodyProyectosAvances.html", proyectosavances=registros)
+        cursor = con.cursor(dictionary=True)
+        sql = """
+        SELECT pa.idProyectoAvance,
+               pa.idProyecto,   
+               pa.progreso,
+               pa.descripcion,
+               pa.fechaHora,
+               p.tituloProyecto
+        FROM proyectosavances pa
+        INNER JOIN proyectos p ON pa.idProyecto = p.idProyecto
+        ORDER BY pa.idProyectoAvance DESC
+        LIMIT 10 OFFSET 0
+        """
+        cursor.execute(sql)
+        registros = cursor.fetchall()
+
+        return render_template("tbodyProyectosAvances.html", proyectosavances=registros)
+
+    except Exception as e:
+        print("Error en /tbodyProyectosAvances:", str(e))
+        return jsonify({"error": "Error interno al cargar proyectos avances"}), 500
+
+    finally:
+        if cursor:
+            cursor.close()
+        if con and con.is_connected():
+            con.close()
 
 
 @app.route("/proyectoavance", methods=["POST"])
 @login
 def guardarProyectoAvance():
-    if not con.is_connected():
-        con.reconnect()
+    try:
+        if not con.is_connected():
+            con.reconnect()
 
-    idProyectoAvance = request.form.get("idProyectoAvance")
-    idProyecto       = request.form.get("idProyecto")  
-    progreso         = request.form.get("txtProgreso")
-    descripcion      = request.form.get("txtDescripcion")
+        idProyectoAvance = request.form.get("idProyectoAvance")
+        idProyecto       = request.form.get("idProyecto")  
+        progreso         = request.form.get("txtProgreso")
+        descripcion      = request.form.get("txtDescripcion")
 
-    cursor = con.cursor()
+        cursor = con.cursor()
 
-    if idProyectoAvance:  # Update
-        sql = """
-        UPDATE proyectosavances
-        SET idProyecto = %s,
-            progreso   = %s,
-            descripcion = %s,
-            fechaHora = NOW()
-        WHERE idProyectoAvance = %s
-        """
-        val = (idProyecto, progreso, descripcion, idProyectoAvance)
-    else:  # Insert
-        sql = """
-        INSERT INTO proyectosavances (idProyecto, progreso, descripcion, fechaHora)
-        VALUES (%s, %s, %s, NOW())
-        """
-        val = (idProyecto, progreso, descripcion)
+        if idProyectoAvance:  # Update
+            sql = """
+            UPDATE proyectosavances
+            SET idProyecto = %s,
+                progreso   = %s,
+                descripcion = %s,
+                fechaHora = NOW()
+            WHERE idProyectoAvance = %s
+            """
+            val = (idProyecto, progreso, descripcion, idProyectoAvance)
+        else:  # Insert
+            sql = """
+            INSERT INTO proyectosavances (idProyecto, progreso, descripcion, fechaHora)
+            VALUES (%s, %s, %s, NOW())
+            """
+            val = (idProyecto, progreso, descripcion)
 
-    cursor.execute(sql, val)
-    con.commit()
-    con.close()
+        cursor.execute(sql, val)
+        con.commit()
 
-    pusherProyectosAvances()
-    return make_response(jsonify({"mensaje": "Proyecto Avance guardado"}))
+        pusherProyectosAvances()
+        return make_response(jsonify({"mensaje": "Proyecto Avance guardado"}))
+    
+    except Exception as e:
+        print("Error en /proyectoavance:", str(e))
+        return make_response(jsonify({"error": str(e)}), 500)
+
+    finally:
+        if cursor:
+            cursor.close()
+        if con and con.is_connected():
+            con.close()
 
 
 @app.route("/proyectoavance/eliminar", methods=["POST"])
 @login
 def eliminarProyectoAvance():
-    if not con.is_connected():
-        con.reconnect()
+    try:
+        if not con.is_connected():
+            con.reconnect()
 
-    id = request.form.get("id")
+        id = request.form.get("id")
 
-    cursor = con.cursor(dictionary=True)
-    sql = """
-    DELETE FROM proyectosavances 
-    WHERE idProyectoAvance = %s
-    """
-    val = (id,)
-    
-    cursor.execute(sql, val)
-    con.commit()
-    con.close()
+        cursor = con.cursor(dictionary=True)
+        sql = """
+        DELETE FROM proyectosavances 
+        WHERE idProyectoAvance = %s
+        """
+        val = (id,)
+        
+        cursor.execute(sql, val)
+        con.commit()
 
-    pusherProyectosAvances()
-    return make_response(jsonify({"mensaje": "Proyecto Avance eliminado"}))
+        pusherProyectosAvances()
+        return make_response(jsonify({"mensaje": "Proyecto Avance eliminado"}))
+
+    except Exception as e:
+        print("Error en /proyectoavance/eliminar:", str(e))
+        return make_response(jsonify({"error": str(e)}), 500)
+
+    finally:
+        if cursor:
+            cursor.close()
+        if con and con.is_connected():
+            con.close()
 
 #/////////////////////Equipos/////////////////////////////
   
@@ -853,6 +899,7 @@ def obtenerEquipoIntegrante(id):
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
+
 
 
 
