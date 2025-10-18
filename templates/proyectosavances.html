@@ -6,6 +6,7 @@
                 <option value="{{ proyecto.idProyecto }}">{{ proyecto.tituloProyecto }}</option>
             {% endfor %}
         </select>
+    <input type="hidden" id="hiddenIdProyecto" name="hiddenIdProyecto">    
     </div>
     <div class="mb-1">
         <label>Progreso (%)</label>
@@ -35,7 +36,6 @@
         <tbody id="tbodyProyectosAvances"></tbody>
     </table>
 </div>
-
 
 
 
