@@ -327,17 +327,13 @@ def eliminarIntegrante():
         if con and con.is_connected():
             con.close()
   
-#   Rutas De Proyectos Avances    
-#   Rutas De Proyectos Avances    
-
 @app.route("/proyectosavances")
 @login
 def proyectosavances():
     try:
-        if not con.is_connected():
-            con.reconnect()
-
+        con = con_pool.get_connection()
         cursor = con.cursor(dictionary=True)
+
         sql = """
         SELECT idProyecto, tituloProyecto
         FROM proyectos
@@ -363,10 +359,9 @@ def proyectosavances():
 @login
 def listaProyectos():
     try:
-        if not con.is_connected():
-            con.reconnect()
-
+        con = con_pool.get_connection()
         cursor = con.cursor(dictionary=True)
+
         sql = """
         SELECT idProyecto, tituloProyecto
         FROM proyectos
@@ -392,10 +387,9 @@ def listaProyectos():
 @login
 def tbodyProyectosAvances():
     try:
-        if not con.is_connected():
-            con.reconnect()
-
+        con = con_pool.get_connection()
         cursor = con.cursor(dictionary=True)
+
         sql = """
         SELECT pa.idProyectoAvance,
                pa.idProyecto,   
@@ -428,15 +422,13 @@ def tbodyProyectosAvances():
 @login
 def guardarProyectoAvance():
     try:
-        if not con.is_connected():
-            con.reconnect()
+        con = con_pool.get_connection()
+        cursor = con.cursor()
 
         idProyectoAvance = request.form.get("idProyectoAvance")
         idProyecto       = request.form.get("idProyecto")  
         progreso         = request.form.get("txtProgreso")
         descripcion      = request.form.get("txtDescripcion")
-
-        cursor = con.cursor()
 
         if idProyectoAvance:  # Update
             sql = """
@@ -476,12 +468,11 @@ def guardarProyectoAvance():
 @login
 def eliminarProyectoAvance():
     try:
-        if not con.is_connected():
-            con.reconnect()
+        con = con_pool.get_connection()
+        cursor = con.cursor(dictionary=True)
 
         id = request.form.get("id")
 
-        cursor = con.cursor(dictionary=True)
         sql = """
         DELETE FROM proyectosavances 
         WHERE idProyectoAvance = %s
@@ -503,8 +494,6 @@ def eliminarProyectoAvance():
             cursor.close()
         if con and con.is_connected():
             con.close()
-
-
 #/////////////////////Equipos/////////////////////////////
   
 #/// Lo borre pk no se comentar
@@ -901,6 +890,7 @@ def obtenerEquipoIntegrante(id):
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
+
 
 
 
