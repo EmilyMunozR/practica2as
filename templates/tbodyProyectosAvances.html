@@ -6,7 +6,17 @@
     <td>{{ avance.descripcion }}</td>
     <td>{{ avance.fechaHora }}</td>
     <td>
-      <button class="btn btn-danger btn-end btnEliminarAvance" data-id="{{ avance.idProyectoAvance }}">
+      <button 
+        class="btn btn-warning btnEditarAvance"
+        data-id="{{ avance.idProyectoAvance }}"
+        data-proyecto="{{ avance.idProyecto }}" 
+        data-progreso="{{ avance.progreso }}"
+        data-descripcion="{{ avance.descripcion }}">
+        Modificar
+      </button>
+      <button 
+        class="btn btn-danger btnEliminarAvance" 
+        data-id="{{ avance.idProyectoAvance }}">
         Eliminar
       </button>
     </td>
