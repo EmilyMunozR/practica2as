@@ -663,7 +663,7 @@ app.controller("proyectosavancesCtrl", function ($scope, $http) {
         });
     });
 
-    // Eliminar Proyecto Avance
+       // Eliminar Proyecto Avance
     $(document).on("click", ".btnEliminarAvance", function () {
         const id = $(this).data("id");
 
@@ -675,7 +675,73 @@ app.controller("proyectosavancesCtrl", function ($scope, $http) {
             });
         }
     });
-});
+
+        // ===============================
+    //  Modificar Proyecto Avance
+    // ===============================
+
+    let idAvanceEditar = null;
+    let idProyectoFijo = null; // ✅ guardaremos aquí el idProyecto original
+
+    // Click en "Modificar"
+    $(document).on("click", ".btnEditarAvance", function() {
+        idAvanceEditar = $(this).data("id");
+        idProyectoFijo = $(this).data("proyecto"); // ✅ tomamos el idProyecto desde la tabla
+
+        const progreso = $(this).data("progreso");
+        const descripcion = $(this).data("descripcion");
+
+        $("#txtProgreso").val(progreso);
+        $("#txtDescripcion").val(descripcion);
+
+        // ✅ Deshabilitamos el select para que no pueda cambiarlo
+        $("#slcProyecto").prop("disabled", true);
+
+        // Cambiamos el texto del botón principal
+        $("#frmProyectoAvance button[type='submit']").text("Actualizar");
+
+        // Scroll al formulario
+        $("html, body").animate({ scrollTop: $("#frmProyectoAvance").offset().top }, 400);
+    });
+
+    // Detectar envío del formulario
+    $(document).on("submit", "#frmProyectoAvance", function (event) {
+        event.preventDefault();
+
+        const progreso = $("#txtProgreso").val();
+        const descripcion = $("#txtDescripcion").val();
+
+        if (!progreso) {
+            alert("Por favor ingresa el progreso");
+            return;
+        }
+
+        // ✅ Si estamos editando, usamos el idProyectoFijo
+        const idProyecto = idAvanceEditar ? idProyectoFijo : $("#slcProyecto").val();
+        const idProyectoAvance = idAvanceEditar ? idAvanceEditar : "";
+
+        $.post("/proyectoavance", {
+            idProyectoAvance: idProyectoAvance,
+            idProyecto: idProyecto,
+            txtProgreso: progreso,
+            txtDescripcion: descripcion
+        }).done(function(response) {
+            $("#frmProyectoAvance")[0].reset();
+            alert(idAvanceEditar ? "Avance actualizado correctamente" : "Avance guardado correctamente");
+            buscarProyectosAvances();
+
+            // ✅ Restaurar estado
+            idAvanceEditar = null;
+            idProyectoFijo = null;
+            $("#slcProyecto").prop("disabled", false); // volvemos a habilitar el select
+            $("#frmProyectoAvance button[type='submit']").text("Guardar");
+        }).fail(function(xhr) {
+            alert("Error al guardar: " + (xhr.responseText || xhr.statusText));
+        });
+    });
+
+}); // 👈 este cierra todo el controlador (no lo borres)
+
 
 /////////////////////////////////////////////////////////
 
@@ -695,6 +761,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash);
 });
+
 
 
 
