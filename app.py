@@ -329,6 +329,7 @@ def eliminarIntegrante():
 
 
 #   Rutas  De  Proyectos Avances    
+#   Rutas  De  Proyectos Avances    
 @app.route("/proyectosavances")
 def proyectosavances():
     if not con.is_connected():
@@ -376,6 +377,7 @@ def tbodyProyectosAvances():
     cursor = con.cursor(dictionary=True)
     sql = """
     SELECT pa.idProyectoAvance,
+           pa.idProyecto,   
            pa.progreso,
            pa.descripcion,
            pa.fechaHora,
@@ -846,6 +848,7 @@ def obtenerEquipoIntegrante(id):
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
+
 
 
 
