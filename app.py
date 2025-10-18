@@ -326,7 +326,44 @@ def eliminarIntegrante():
             cursor.close()
         if con and con.is_connected():
             con.close()
-  
+@app.route("/proyectoavance/<int:id>")
+@login
+def obtenerProyectoAvance(id):
+    try:
+        con = con_pool.get_connection()
+        cursor = con.cursor(dictionary=True)
+
+        sql = """
+        SELECT pa.idProyectoAvance,
+               pa.idProyecto,   
+               pa.progreso,
+               pa.descripcion,
+               pa.fechaHora,
+               p.tituloProyecto
+        FROM proyectosavances pa
+        INNER JOIN proyectos p ON pa.idProyecto = p.idProyecto
+        WHERE pa.idProyectoAvance = %s
+        """
+        val = (id,)
+        
+        cursor.execute(sql, val)
+        proyecto_avance = cursor.fetchone()
+
+        if proyecto_avance:
+            return make_response(jsonify(proyecto_avance))
+        else:
+            return jsonify({"error": "Proyecto avance no encontrado"}), 404
+
+    except Exception as e:
+        print("Error en /proyectoavance/<int:id>:", str(e))
+        return jsonify({"error": "Error interno al cargar proyecto avance"}), 500
+
+    finally:
+        if cursor:
+            cursor.close()
+        if con and con.is_connected():
+            con.close()
+            
 @app.route("/proyectosavances")
 @login
 def proyectosavances():
@@ -915,6 +952,7 @@ def obtenerEquipoIntegrante(id):
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
+
 
 
 
