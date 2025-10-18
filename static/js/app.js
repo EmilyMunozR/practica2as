@@ -591,6 +591,8 @@ $(document).on("click", ".btnModificarEquipoIntegrante", function () {
 //////////////////////////////////////////////////////////
 // proyectosavances controller (CORREGIDO)
 app.controller("proyectosavancesCtrl", function ($scope, $http) {
+    let idAvanceEditar = null;
+    let idProyectoFijo = null;
 
     // Cargar proyectos en el dropdown
     function cargarProyectos() {
@@ -622,23 +624,20 @@ app.controller("proyectosavancesCtrl", function ($scope, $http) {
 
     // Pusher
     Pusher.logToConsole = true;
-
-    var pusher = new Pusher('85576a197a0fb5c211de', {
-        cluster: 'us2'
-    });
-
+    var pusher = new Pusher('85576a197a0fb5c211de', { cluster: 'us2' });
     var channel = pusher.subscribe("proyectosAvanceschannel");
     channel.bind("proyectosAvancesevent", function(data) {
         buscarProyectosAvances();
     });
 
-    // Insertar Proyecto Avance
-    $(document).on("submit", "#frmProyectoAvance", function (event) {
+    // Guardar o actualizar avance
+    $(document).off("submit", "#frmProyectoAvance").on("submit", "#frmProyectoAvance", function (event) {
         event.preventDefault();
 
-        const idProyecto = $("#slcProyecto").val();
         const progreso = $("#txtProgreso").val();
         const descripcion = $("#txtDescripcion").val();
+        const idProyecto = idAvanceEditar ? idProyectoFijo : $("#slcProyecto").val();
+        const idProyectoAvance = idAvanceEditar ? idAvanceEditar : "";
 
         if (!idProyecto) {
             alert("Por favor selecciona un proyecto");
@@ -650,77 +649,6 @@ app.controller("proyectosavancesCtrl", function ($scope, $http) {
         }
 
         $.post("/proyectoavance", {
-            idProyectoAvance: "",
-            idProyecto: idProyecto,
-            txtProgreso: progreso,
-            txtDescripcion: descripcion
-        }).done(function(response) {
-            $("#frmProyectoAvance")[0].reset();
-            alert("Avance guardado correctamente");
-            buscarProyectosAvances();
-        }).fail(function(xhr) {
-            alert("Error al guardar: " + (xhr.responseText || xhr.statusText));
-        });
-    });
-
-       // Eliminar Proyecto Avance
-    $(document).on("click", ".btnEliminarAvance", function () {
-        const id = $(this).data("id");
-
-        if (confirm("¿Seguro que quieres eliminar este avance?")) {
-            $.post("/proyectoavance/eliminar", { id: id }, function () {
-                $(`button[data-id='${id}']`).closest("tr").remove();
-            }).fail(function () {
-                alert("Error al eliminar el avance");
-            });
-        }
-    });
-
-        // ===============================
-    //  Modificar Proyecto Avance
-    // ===============================
-
-    let idAvanceEditar = null;
-    let idProyectoFijo = null; // ✅ guardaremos aquí el idProyecto original
-
-    // Click en "Modificar"
-    $(document).on("click", ".btnEditarAvance", function() {
-        idAvanceEditar = $(this).data("id");
-        idProyectoFijo = $(this).data("proyecto"); // ✅ tomamos el idProyecto desde la tabla
-
-        const progreso = $(this).data("progreso");
-        const descripcion = $(this).data("descripcion");
-
-        $("#txtProgreso").val(progreso);
-        $("#txtDescripcion").val(descripcion);
-
-        // ✅ Deshabilitamos el select para que no pueda cambiarlo
-        $("#slcProyecto").prop("disabled", true);
-
-        // Cambiamos el texto del botón principal
-        $("#frmProyectoAvance button[type='submit']").text("Actualizar");
-
-        // Scroll al formulario
-        $("html, body").animate({ scrollTop: $("#frmProyectoAvance").offset().top }, 400);
-    });
-
-    // Detectar envío del formulario
-    $(document).on("submit", "#frmProyectoAvance", function (event) {
-        event.preventDefault();
-
-        const progreso = $("#txtProgreso").val();
-        const descripcion = $("#txtDescripcion").val();
-
-        if (!progreso) {
-            alert("Por favor ingresa el progreso");
-            return;
-        }
-
-        // ✅ Si estamos editando, usamos el idProyectoFijo
-        const idProyecto = idAvanceEditar ? idProyectoFijo : $("#slcProyecto").val();
-        const idProyectoAvance = idAvanceEditar ? idAvanceEditar : "";
-
-        $.post("/proyectoavance", {
             idProyectoAvance: idProyectoAvance,
             idProyecto: idProyecto,
             txtProgreso: progreso,
@@ -730,17 +658,46 @@ app.controller("proyectosavancesCtrl", function ($scope, $http) {
             alert(idAvanceEditar ? "Avance actualizado correctamente" : "Avance guardado correctamente");
             buscarProyectosAvances();
 
-            // ✅ Restaurar estado
+            // Restaurar estado
             idAvanceEditar = null;
             idProyectoFijo = null;
-            $("#slcProyecto").prop("disabled", false); // volvemos a habilitar el select
+            $("#slcProyecto").prop("disabled", false);
             $("#frmProyectoAvance button[type='submit']").text("Guardar");
         }).fail(function(xhr) {
             alert("Error al guardar: " + (xhr.responseText || xhr.statusText));
         });
     });
 
-}); // 👈 este cierra todo el controlador (no lo borres)
+    // Eliminar avance
+    $(document).on("click", ".btnEliminarAvance", function () {
+        const id = $(this).data("id");
+        console.log("ID a eliminar:", id);
+
+        if (confirm("¿Seguro que quieres eliminar este avance?")) {
+            $.post("/proyectoavance/eliminar", { id: id }, function () {
+                buscarProyectosAvances();
+            }).fail(function () {
+                alert("Error al eliminar el avance");
+            });
+        }
+    });
+
+    // Editar avance
+    $(document).on("click", ".btnEditarAvance", function() {
+        idAvanceEditar = $(this).data("id");
+        idProyectoFijo = $(this).data("proyecto");
+
+        const progreso = $(this).data("progreso");
+        const descripcion = $(this).data("descripcion");
+
+        $("#txtProgreso").val(progreso);
+        $("#txtDescripcion").val(descripcion);
+        $("#slcProyecto").prop("disabled", true);
+        $("#frmProyectoAvance button[type='submit']").text("Actualizar");
+
+        $("html, body").animate({ scrollTop: $("#frmProyectoAvance").offset().top }, 400);
+    });
+});
 
 
 /////////////////////////////////////////////////////////
@@ -761,6 +718,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash);
 });
+
 
 
 
