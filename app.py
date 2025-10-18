@@ -326,6 +326,7 @@ def eliminarIntegrante():
             cursor.close()
         if con and con.is_connected():
             con.close()
+
 @app.route("/proyectoavance/<int:id>")
 @login
 def obtenerProyectoAvance(id):
@@ -459,19 +460,23 @@ def tbodyProyectosAvances():
 @login
 def guardarProyectoAvance():
     try:
+        idProyectoAvance = request.form.get("idProyectoAvance")
+        idProyecto = request.form.get("idProyecto")  
+        progreso = request.form.get("txtProgreso")
+        descripcion = request.form.get("txtDescripcion")
+
+        # Validaciones básicas
+        if not idProyecto or not progreso or not descripcion:
+            return jsonify({"error": "Todos los campos son requeridos"}), 400
+
         con = con_pool.get_connection()
         cursor = con.cursor()
-
-        idProyectoAvance = request.form.get("idProyectoAvance")
-        idProyecto       = request.form.get("idProyecto")  
-        progreso         = request.form.get("txtProgreso")
-        descripcion      = request.form.get("txtDescripcion")
 
         if idProyectoAvance:  # Update
             sql = """
             UPDATE proyectosavances
             SET idProyecto = %s,
-                progreso   = %s,
+                progreso = %s,
                 descripcion = %s,
                 fechaHora = NOW()
             WHERE idProyectoAvance = %s
@@ -488,11 +493,11 @@ def guardarProyectoAvance():
         con.commit()
 
         pusherProyectosAvances()
-        return make_response(jsonify({"mensaje": "Proyecto Avance guardado"}))
+        return jsonify({"mensaje": "Proyecto Avance guardado correctamente"})
     
     except Exception as e:
         print("Error en /proyectoavance:", str(e))
-        return make_response(jsonify({"error": str(e)}), 500)
+        return jsonify({"error": "Error interno al guardar proyecto avance"}), 500
 
     finally:
         if cursor:
@@ -952,6 +957,7 @@ def obtenerEquipoIntegrante(id):
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
+
 
 
 
