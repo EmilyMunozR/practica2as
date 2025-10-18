@@ -704,6 +704,7 @@ def cargarEquipos():
 
 #////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+# Equipos Integrantes
 @app.route("/equiposintegrantes")
 @login
 def equiposintegrantes():
@@ -712,173 +713,196 @@ def equiposintegrantes():
 @app.route("/tbodyEquiposIntegrantes")
 @login
 def tbodyEquiposIntegrantes():
-    if not con.is_connected():
-        con.reconnect()
-    cursor = con.cursor(dictionary=True)
-    
-    sql = """
-        SELECT 
+    try:
+        con = con_pool.get_connection()
+        cursor = con.cursor(dictionary=True)
+
+        sql = """
+            SELECT 
                 ei.idEquipoIntegrante,
                 e.nombreEquipo,
                 i.nombreIntegrante,
                 ei.fechaUnion
-        FROM equiposintegrantes ei
-        INNER JOIN equipos e 
-                ON e.idEquipo = ei.idEquipo
-        INNER JOIN integrantes i 
-                ON i.idIntegrante = ei.idIntegrante
-        ORDER BY ei.idEquipoIntegrante DESC
-        LIMIT 10 OFFSET 0
-    """
-    cursor.execute(sql)
-    registros = cursor.fetchall()
+            FROM equiposintegrantes ei
+            INNER JOIN equipos e ON e.idEquipo = ei.idEquipo
+            INNER JOIN integrantes i ON i.idIntegrante = ei.idIntegrante
+            ORDER BY ei.idEquipoIntegrante DESC
+            LIMIT 10 OFFSET 0
+        """
+        cursor.execute(sql)
+        registros = cursor.fetchall()
 
-    cursor.close()
-    return render_template("tbodyEquiposIntegrantes.html", equiposintegrantes=registros)
-    
+        return render_template("tbodyEquiposIntegrantes.html", equiposintegrantes=registros)
+
+    except Exception as e:
+        print(f"Error en tbodyEquiposIntegrantes: {e}")
+        return jsonify({"error": "Error al cargar equipos integrantes"}), 500
+
+    finally:
+        if cursor:
+            cursor.close()
+        if con and con.is_connected():
+            con.close()
+
+
 @app.route("/equiposintegrantes/buscar", methods=["GET"])
 @login
 def buscarEquiposIntegrantes():
-    if not con.is_connected():
-        con.reconnect()
-
-    args     = request.args
-    busqueda = args["busqueda"]
+    busqueda = request.args.get("busqueda", "")
     busqueda = f"%{busqueda}%"
 
-    cursor = con.cursor(dictionary=True)
-    sql    = """
-
-    SELECT ei.idEquipoIntegrante, e.nombreEquipo, i.nombreIntegrante
-    FROM equiposintegrantes ei
-    INNER JOIN equipos e ON e.idEquipo = ei.idEquipo
-    INNER JOIN integrantes i ON i.idIntegrante = ei.idIntegrante
-    ORDER BY ei.idEquipoIntegrante DESC
-    LIMIT 10 OFFSET 0
-    
-    """
-    val = (busqueda,)
-
     try:
+        con = con_pool.get_connection()
+        cursor = con.cursor(dictionary=True)
+
+        sql = """
+            SELECT ei.idEquipoIntegrante, e.nombreEquipo, i.nombreIntegrante
+            FROM equiposintegrantes ei
+            INNER JOIN equipos e ON e.idEquipo = ei.idEquipo
+            INNER JOIN integrantes i ON i.idIntegrante = ei.idIntegrante
+            WHERE e.nombreEquipo LIKE %s OR i.nombreIntegrante LIKE %s
+            ORDER BY ei.idEquipoIntegrante DESC
+            LIMIT 10 OFFSET 0
+        """
+        val = (busqueda, busqueda)
         cursor.execute(sql, val)
         registros = cursor.fetchall()
-
-    except mysql.connector.errors.ProgrammingError as error:
-        print(f"Ocurrió un error de programación en MySQL: {error}")
-        registros = []
-
-    finally:
-        con.close()
-
-    return make_response(jsonify(registros))
-
-@app.route("/equiposintegrantes", methods=["POST"])
-@login
-def guardarEquiposIntegrantes():
-    if not con.is_connected():
-        con.reconnect()
-
-    idEquipoIntegrante = request.form["idEquipoIntegrante"]
-    idEquipo = request.form["idEquipo"]
-    idIntegrante = request.form["idIntegrante"]
-    
-    cursor = con.cursor()
-
-    if idEquipoIntegrante:
-        sql = """
-        UPDATE equiposintegrantes
-        SET idEquipo = %s,
-            idIntegrante = %s,
-            fechaUnion = NOW()
-        WHERE idEquipoIntegrante = %s
-        """
-        val = (idEquipo, idIntegrante, idEquipoIntegrante)
-    else:
-        sql = """
-        INSERT INTO equiposintegrantes (idEquipo, idIntegrante, fechaUnion)
-        VALUES (%s, %s, NOW())
-        """
-        val = (idEquipo, idIntegrante)
-
-    cursor.execute(sql, val)
-    con.commit()
-    con.close()
-
-    pusherEquiposIntegrantes()
-    return make_response(jsonify({"mensaje": "EquipoIntegrante guardado"}))
-
-@app.route("/equiposintegrantes/eliminar", methods=["POST"])
-@login
-def eliminarequiposintegrantes():
-    if not con.is_connected():
-        con.reconnect()
-
-    id = request.form.get("id")
-
-    cursor = con.cursor(dictionary=True)
-    sql = """
-    DELETE FROM equiposintegrantes 
-    WHERE idEquipoIntegrante = %s
-    """
-    val = (id,)
-    
-    cursor.execute(sql, val)
-    con.commit()
-    con.close()
-
-    pusherEquiposIntegrantes()
-    return make_response(jsonify({"mensaje": "Equipo Integrante eliminado"}))
-
-@app.route("/integrantes/lista")
-@login
-def cargarIntegrantes():
-    if not con.is_connected():
-        con.reconnect()
-
-    cursor = con.cursor(dictionary=True)
-    sql = """
-    SELECT idIntegrante , nombreIntegrante 
-    FROM integrantes
-    ORDER BY nombreIntegrante ASC
-    """
-    
-    cursor.execute(sql)
-    registros = cursor.fetchall()
-    con.close()
-    
-    return make_response(jsonify(registros))
-    
-#////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-# Obtener un registro específico de equiposintegrantes (para modificar)
-@app.route("/equiposintegrantes/<int:id>", methods=["GET"])
-@login
-def obtenerEquipoIntegrante(id):
-
-    if not con.is_connected():
-        con.reconnect()
-
-
-        sql = """
-        SELECT 
-            ei.idEquipoIntegrante,
-            ei.idEquipo,
-            ei.idIntegrante,
-            e.nombreEquipo,
-            i.nombreIntegrante
-        FROM equiposintegrantes ei
-        INNER JOIN equipos e ON e.idEquipo = ei.idEquipo
-        INNER JOIN integrantes i ON i.idIntegrante = ei.idIntegrante
-        WHERE ei.idEquipoIntegrante = %s
-        """
-       cursor.execute(sql)
-    registros = cursor.fetchall()
-    con.close()
 
         return make_response(jsonify(registros))
 
     except Exception as e:
-        print(f"Error al obtener equipo-integrante: {e}")
+        print(f"Error en buscarEquiposIntegrantes: {e}")
+        return make_response(jsonify([]))
+
+    finally:
+        if cursor:
+            cursor.close()
+        if con and con.is_connected():
+            con.close()
+
+
+@app.route("/equiposintegrantes", methods=["POST"])
+@login
+def guardarEquiposIntegrantes():
+    try:
+        con = con_pool.get_connection()
+        cursor = con.cursor()
+
+        idEquipoIntegrante = request.form.get("idEquipoIntegrante")
+        idEquipo = request.form["idEquipo"]
+        idIntegrante = request.form["idIntegrante"]
+
+        if idEquipoIntegrante:  # UPDATE
+            sql = """
+                UPDATE equiposintegrantes
+                SET idEquipo = %s,
+                    idIntegrante = %s,
+                    fechaUnion = NOW()
+                WHERE idEquipoIntegrante = %s
+            """
+            val = (idEquipo, idIntegrante, idEquipoIntegrante)
+        else:  # INSERT
+            sql = """
+                INSERT INTO equiposintegrantes (idEquipo, idIntegrante, fechaUnion)
+                VALUES (%s, %s, NOW())
+            """
+            val = (idEquipo, idIntegrante)
+
+        cursor.execute(sql, val)
+        con.commit()
+
+        pusherEquiposIntegrantes()
+        return make_response(jsonify({"mensaje": "EquipoIntegrante guardado"}))
+
+    except Exception as e:
+        print(f"Error en guardarEquiposIntegrantes: {e}")
+        return make_response(jsonify({"error": "Error al guardar"}), 500)
+
+    finally:
+        if cursor:
+            cursor.close()
+        if con and con.is_connected():
+            con.close()
+
+
+@app.route("/equiposintegrantes/eliminar", methods=["POST"])
+@login
+def eliminarequiposintegrantes():
+    try:
+        con = con_pool.get_connection()
+        cursor = con.cursor()
+        id = request.form.get("id")
+
+        sql = "DELETE FROM equiposintegrantes WHERE idEquipoIntegrante = %s"
+        cursor.execute(sql, (id,))
+        con.commit()
+
+        pusherEquiposIntegrantes()
+        return make_response(jsonify({"mensaje": "Equipo Integrante eliminado"}))
+
+    except Exception as e:
+        print(f"Error en eliminarequiposintegrantes: {e}")
+        return make_response(jsonify({"error": "Error al eliminar"}), 500)
+
+    finally:
+        if cursor:
+            cursor.close()
+        if con and con.is_connected():
+            con.close()
+
+
+@app.route("/integrantes/lista")
+@login
+def cargarIntegrantes():
+    try:
+        con = con_pool.get_connection()
+        cursor = con.cursor(dictionary=True)
+
+        cursor.execute("SELECT idIntegrante, nombreIntegrante FROM integrantes ORDER BY nombreIntegrante ASC")
+        registros = cursor.fetchall()
+
+        return make_response(jsonify(registros))
+
+    except Exception as e:
+        print(f"Error en cargarIntegrantes: {e}")
+        return make_response(jsonify([]))
+
+    finally:
+        if cursor:
+            cursor.close()
+        if con and con.is_connected():
+            con.close()
+
+
+@app.route("/equiposintegrantes/<int:id>", methods=["GET"])
+@login
+def obtenerEquipoIntegrante(id):
+    try:
+        con = con_pool.get_connection()
+        cursor = con.cursor(dictionary=True)
+
+        sql = """
+            SELECT 
+                ei.idEquipoIntegrante,
+                ei.idEquipo,
+                ei.idIntegrante,
+                e.nombreEquipo,
+                i.nombreIntegrante
+            FROM equiposintegrantes ei
+            INNER JOIN equipos e ON e.idEquipo = ei.idEquipo
+            INNER JOIN integrantes i ON i.idIntegrante = ei.idIntegrante
+            WHERE ei.idEquipoIntegrante = %s
+        """
+        cursor.execute(sql, (id,))
+        registro = cursor.fetchone()
+
+        if registro:
+            return make_response(jsonify(registro))
+        else:
+            return make_response(jsonify({"error": "Registro no encontrado"}), 404)
+
+    except Exception as e:
+        print(f"Error en obtenerEquipoIntegrante: {e}")
         return make_response(jsonify({"error": "Error al obtener el registro"}), 500)
 
     finally:
@@ -888,8 +912,10 @@ def obtenerEquipoIntegrante(id):
             con.close()
 
 
+
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
+
 
 
 
