@@ -328,6 +328,7 @@ def eliminarIntegrante():
             con.close()
   
 #   Rutas De Proyectos Avances    
+#   Rutas De Proyectos Avances    
 
 @app.route("/proyectosavances")
 @login
@@ -502,6 +503,7 @@ def eliminarProyectoAvance():
             cursor.close()
         if con and con.is_connected():
             con.close()
+
 
 #/////////////////////Equipos/////////////////////////////
   
@@ -899,6 +901,7 @@ def obtenerEquipoIntegrante(id):
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
+
 
 
 
