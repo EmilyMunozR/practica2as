@@ -580,8 +580,8 @@ $(document).on("click", ".btnEliminarEquipoIntegrante", function () {
 //modficar
 $(document).on("click", ".btnModificarEquipoIntegrante", function () {
     const idEquipoIntegrante = $(this).data("id");
-    const idEquipo = $(this).data("idequipo");
-    const idIntegrante = $(this).data("idintegrante");
+    const idEquipo = $(this).data("nombreEquipo");
+    const idIntegrante = $(this).data("nombreIntegrante");
 
     $("#idEquipoIntegrante").val(idEquipoIntegrante);
     $("#txtEquipo").val(idEquipo);
@@ -718,6 +718,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     activeMenuOption(location.hash);
 });
+
 
 
 
